@@ -4,9 +4,7 @@ import platform
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-import networkx as nx
-import igraph as ig
-import random
+from tqdm import tqdm
 
 from simulation import simulate_fireflies_communication_range
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -28,7 +26,7 @@ if __name__ == "__main__":
     # seed = np.random.randint(2**32)
     r_range = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
                1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-    update_noise = 0.1  # to deactivate the noise set to 'None'
+    update_noise = 0.05  # to deactivate the noise set to 'None'
     
     run_params = []
     save_flash_counts = {}
@@ -52,6 +50,7 @@ if __name__ == "__main__":
     avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
     avg_num_neighbors_df.to_csv(f"{path}/N={N}_clock_lnegth={clock_length}_T={T}_flash_proportion={flash_proportion}_r_com_range_avg_neighbors.csv",
         index=False)
+    print(f"done setting up the parameters ...")
     
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         
@@ -60,10 +59,11 @@ if __name__ == "__main__":
                             flash_proportion, r, update_noise)
             for (N, clock_length, phases, communication_graph, T, flash_proportion, r) in run_params
         ]
-    for future in as_completed(futures):
-        flash_counts, phase_history, groups_history, r = future.result()
-        save_flash_counts[r].append(np.max(flash_counts))
-    
+        
+        for future in tqdm(as_completed(futures), total=len(futures)):
+            flash_counts, phase_history, groups_history, r = future.result()
+            save_flash_counts[r].append(np.max(flash_counts))
+        
     save_flash_counts = pd.DataFrame(save_flash_counts)
     
     if update_noise is not None:
