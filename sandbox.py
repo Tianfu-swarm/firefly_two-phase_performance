@@ -12,9 +12,6 @@ import constants
 CLOCK_LENGTH = 24
 DUTY_CYCLE = 2
 
-# ======================================
-# 模型函数
-# ======================================
 def simulate_fireflies( g0, g1, g2, N=150, L=CLOCK_LENGTH, r=0.1, T=1000, seed=1, plot_flag=False):
     FLASH_LEN = L // DUTY_CYCLE
     FLASH_START = L - FLASH_LEN
@@ -226,23 +223,23 @@ if __name__ == "__main__":
     #                 print(f"g0: {g0}, g1: {g1}, g2: {g2}, max flash_counts: {flash_counts.max()}")
     
     for seed in constants.SEEDS_BREAKING_24:
-        avg_neighbors, flash_counts, pos, phase_history, groups_history = simulate_fireflies(0,0,0,r=2,T=1000, seed=seed, plot_flag=True)
+        avg_neighbors, flash_counts, pos, phase_history, groups_history = simulate_fireflies(0,0,0,r=1.,T=1000, seed=seed, plot_flag=True)
     
         plt.figure()
         plt.plot(groups_history)
         plt.xlabel("time")
         plt.ylabel("number of  sub groups")
-        plt.show()
+        # plt.show()
         
     
-    print(f"phase_history {phase_history.shape}")
-    for t in range(990, 1000):
-        counts = np.bincount(phase_history[t], minlength=CLOCK_LENGTH)
-        print(f"Time {t}: {counts}")
-    
-    # plt.plot(flash_counts)
-    # plt.title('Currently flashing fireflies over time')
-    # plt.xlabel('Timestep')
-    # plt.ylabel('Flashing fireflies')
-    # plt.ylim(0, 155)
-    # plt.show()
+    # print(f"phase_history {phase_history.shape}")
+    # for t in range(990, 1000):
+    #     counts = np.bincount(phase_history[t], minlength=CLOCK_LENGTH)
+    #     print(f"Time {t}: {counts}")
+        plt.figure()
+        plt.plot(flash_counts)
+        plt.title('Currently flashing fireflies over time')
+        plt.xlabel('Timestep')
+        plt.ylabel('Flashing fireflies')
+        plt.ylim(0, 155)
+        plt.show()
