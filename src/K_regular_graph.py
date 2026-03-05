@@ -1,5 +1,5 @@
 from operator import truediv
-
+import igraph as ig
 import numpy as np
 import matplotlib.pyplot as plt
 import multiprocessing as mp
@@ -11,9 +11,9 @@ import pandas as pd
 # ======================================
 # 全局参数
 # ======================================
-CLOCK_LENGTH = 24
+CLOCK_LENGTH = 10
 DUTY_CYCLE = 2
-Num_firefly = 36
+Num_firefly = 100
 
 
 # ======================================
@@ -76,11 +76,15 @@ def _worker_graph_task_random_topo(args):
 
     while True:
         graph_seed = int(rng.integers(0, 2 ** 32 - 1))
-        G = nx.random_regular_graph(d=k, n=Num_firefly, seed=graph_seed)
-        if nx.is_connected(G):
+        # G = nx.random_regular_graph(d=k, n=Num_firefly, seed=graph_seed)
+        py_rng = random.Random(graph_seed)
+        ig.set_random_number_generator(py_rng)
+
+        G = ig.Graph.K_Regular(n=Num_firefly, k=k)
+        if G.is_connected():
             break
 
-    adj_matrix = nx.to_numpy_array(G, dtype=bool)
+    adj_matrix = np.array(G.get_adjacency().data, dtype=bool)
     sim_seed = int(rng.integers(0, 2 ** 32 - 1))
     flash_counts, _ = simulate_fireflies_graph_fast(adj_matrix, k, T, sim_seed)
     last_cycle = flash_counts[-2 * CLOCK_LENGTH:]
@@ -93,10 +97,10 @@ def taskB_graph(output_dir="../output", random_topo=True):
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    k_values = np.arange(2, Num_firefly-1, 1)
-    num_runs = 1_0000
-    T = 3000
-
+    # k_values = np.arange(2, Num_firefly-1, 10)
+    k_values = np.append(np.arange(2, Num_firefly - 1, 10), Num_firefly - 1)
+    num_runs = 1_00
+    T = 1000
 
     tasks = []
 
@@ -115,21 +119,22 @@ def taskB_graph(output_dir="../output", random_topo=True):
                 if k < 2:
                     print(f"跳过 K = {k:2d} | 理由: K=1 无法形成全连通正则图")
                     continue
-                print(f"正在生成 K = {k:2d} 的全连通正则图...", end="\r")
+                print(f"Generating a regular graph with K = {k:2d} ...", end="\r")
                 connected = False
                 attempts = 0
                 while not connected:
                     attempts += 1
-                    G = nx.random_regular_graph(d=k, n=Num_firefly)
-                    if nx.is_connected(G):
+                    # G = nx.random_regular_graph(d=k, n=Num_firefly)
+                    G = ig.Graph.K_Regular(n=Num_firefly, k=k)
+                    if G.is_connected():
                         connected = True
                     if attempts > 1000:
                         raise Exception("超过1000次尝试仍无法生成连通图")
-                adj_matrix = nx.to_numpy_array(G, dtype=bool)
+                adj_matrix = np.array(G.get_adjacency().data, dtype=bool)
                 for _ in range(num_runs):
                     seed = np.random.randint(1, 10 ** 9)
                     tasks.append((int(k), T, seed, adj_matrix))
-                print(f"成功预生成 K = {k:2d} | 尝试次数: {attempts:2d} | 任务数: {num_runs}")
+                print(f"Successfully generated K = {k:2d} | Attempts: {attempts:2d} | Number of tasks: {num_runs}")
             except Exception as e:
                 print(f"\n警告: K={k:2d} 拓扑生成失败: {e}")
 
@@ -1731,5 +1736,5 @@ if __name__ == "__main__":
     #     rng_seed=42,
     # )
 
-    taskB_graph("../data/distribution",random_topo=True)
+    taskB_graph("../data/distribution",random_topo=False)
     # taskB_graph("../data/distribution", random_topo=False)
