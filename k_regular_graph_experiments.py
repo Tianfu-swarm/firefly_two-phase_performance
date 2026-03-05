@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # seed = np.random.randint(2**32)
     k_range = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90,
                100]  # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90,
-    update_noise = 0.1  # to deactivate the noise set to 'None'
+    update_noise = 0.2  # to deactivate the noise set to 'None'
     
     run_params = []
     save_flash_counts = {}

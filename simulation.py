@@ -121,4 +121,4 @@ def simulate_fireflies_communication_range(N=150,
             noise = np.random.random(len(idxs)) <= update_noise
             phases[idxs[noise != majority_flashing]] += 1
             
-    return flash_counts, phase_history, groups_history, r
+    return flash_counts, phase_history[-1, :], groups_history, r

@@ -14,7 +14,7 @@ N = 100
 clock_length = 10
 T=1000
 flash_proportion = 0.5
-noise_level = None  # Set None to deactivate:  0.05
+noise_level = 0.2  # Set None to deactivate:  0.05
 if noise_level is not None:
     noise_str = f"_update_noise={noise_level}"  # set noise level
 else:
@@ -61,7 +61,7 @@ axs[1].set_xticklabels(normalized_labels, rotation=45)
 axs[1].set_ylim(50, N)
 axs[1].set_yticks(np.linspace(50, N, 6))
 axs[1].set_yticklabels(np.linspace(0.5, 1, 6))  # , rotation=45
-axs[1].set_xlabel("Connectivity [r] | Noise level = {noise_level}")
+axs[1].set_xlabel(f"Connectivity [r] | Noise level = {noise_level}")
 axs[1].set_ylabel(r"Maximal amplitude [N$_\text{flash}$ / N]")
 fig.colorbar(im0, ax=axs[1], label="log(Number of runs)", orientation='vertical')
 
