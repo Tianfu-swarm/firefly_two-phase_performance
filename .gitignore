@@ -2,6 +2,8 @@
 *.pyc
 __pycache__/
 venv/
+data
+.idea
 *.csv
 *.npc
 *.png
