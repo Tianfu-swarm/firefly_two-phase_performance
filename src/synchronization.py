@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D  # 3D 图支持
 # ======================================
 # 全局内部时钟
 # ======================================
-CLOCK_LENGTH = 24
+CLOCK_LENGTH = 12
 DUTY_CYCLE = 3
 
 
@@ -17,7 +17,7 @@ DUTY_CYCLE = 3
 # ======================================
 def simulate_fireflies(N=150, L=CLOCK_LENGTH, r=0.1, T=5000, seed=1):
     FLASH_LEN = L // DUTY_CYCLE
-    FLASH_START = L - FLASH_LEN
+    FLASH_START = L - (DUTY_CYCLE - 1) * FLASH_LEN
 
     rng = np.random.default_rng(seed)
     phase_history = np.zeros((T, N), dtype=int)
@@ -491,27 +491,121 @@ def plot_clock_heatmap_from_csv(
     print(f"稳态热力图已保存: {steady_png}")
 
 
+def plot_subgroup_and_change_heatmaps(
+        csv_path: str,
+        CLOCK_LENGTH: int,
+        L: int | None = None,
+        output_root: str = "../output",
+):
+    # ========= 0. 输出目录 =========
+    csv_name = os.path.splitext(os.path.basename(csv_path))[0]
+    output_dir = os.path.join(output_root, csv_name)
+    os.makedirs(output_dir, exist_ok=True)
+
+    # ========= 1. 读取 CSV =========
+    phase_history = np.loadtxt(csv_path, delimiter=",", dtype=int)
+    if phase_history.ndim == 1:
+        phase_history = phase_history[None, :]
+    T, N = phase_history.shape
+
+    # ========= 2. phase 范围 =========
+    if L is None:
+        L = int(phase_history.max()) + 1
+
+    # ========= 3. subgroup 数量 =========
+    subgroup_counts = np.zeros(T, dtype=int)
+    for t in range(T):
+        subgroup_counts[t] = np.unique(phase_history[t]).size
+
+    # ========= 4. 检测变化时刻 =========
+    change_mask = subgroup_counts[1:] != subgroup_counts[:-1]
+    change_times = np.where(change_mask)[0] + 1
+
+    # ========= 5. subgroup 折线图 =========
+    line_path = os.path.join(output_dir, f"{csv_name}_subgroup_count.png")
+
+    plt.figure(figsize=(10, 4))
+    plt.plot(subgroup_counts, linewidth=1.5)
+    if len(change_times) > 0:
+        plt.scatter(change_times, subgroup_counts[change_times], s=18)
+    plt.xlabel("Time step")
+    plt.ylabel("Subgroup count")
+    plt.title(f"{csv_name} - subgroup count over time")
+    plt.tight_layout()
+    plt.savefig(line_path, dpi=300)
+    plt.close()
+
+    print(f"[保存] subgroup 折线图: {line_path}")
+    print(f"[检测] subgroup 变化时刻数: {len(change_times)}")
+
+    # ========= 6. 变化点热力图 =========
+    half = CLOCK_LENGTH
+
+    for t0 in change_times:
+        left = max(0, t0 - half)
+        right = min(T - 1, t0 + half)
+
+        window = phase_history[left:right + 1]
+        Tw = window.shape[0]
+
+        heatmap = np.zeros((Tw, L), dtype=int)
+        for i in range(Tw):
+            heatmap[i] = np.bincount(window[i], minlength=L)
+
+        plt.figure(figsize=(14, 5))
+        plt.imshow(
+            heatmap.T,
+            aspect="auto",
+            origin="lower",
+            extent=[left, right + 1, 0, L]
+        )
+        plt.colorbar(label="Count")
+        plt.axvline(t0, linewidth=5, color="r")
+
+        plt.xlabel("Time (simulation step)")
+        plt.ylabel("Clock phase")
+        plt.title(
+            f"{csv_name} - number of subgroups change at t={t0} "
+        )
+        plt.tight_layout()
+
+        save_path = os.path.join(
+            output_dir,
+            f"{csv_name}_change_t{t0}.png"
+        )
+        plt.savefig(save_path, dpi=300)
+
+        plt.close()
+
+        print(f"[保存] 变化点热力图: {save_path}")
+
+    return subgroup_counts, change_times
+
+
 # ======================================
 # 主程序入口
 # ======================================
 if __name__ == "__main__":
     # taskA()
 
-    # taskB()
+    taskB()
 
     # clock_distribution()
 
-    input_dir = "../data/low_performance_phase"
-    output_dir = "../output/low_performance_phase"
+    # csv_path = "../data/high_performance_phase/phase_history_6076238.csv"
+    # plot_subgroup_and_change_heatmaps(csv_path, 2 * CLOCK_LENGTH)
 
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".csv"):
-            csv_path = os.path.join(input_dir, filename)
-
-            print(f"Processing: {filename}")
-
-            plot_clock_heatmap_from_csv(
-                csv_path=csv_path,
-                output_dir=output_dir,
-                L=CLOCK_LENGTH,
-            )
+    # input_dir = "../data/low_performance_phase"
+    # output_dir = "../output/low_performance_phase"
+    #
+    # for filename in os.listdir(input_dir):
+    #     if filename.endswith(".csv"):
+    #         csv_path = os.path.join(input_dir, filename)
+    #
+    #         print(f"Processing: {filename}")
+    #
+    #         plot_clock_heatmap_from_csv(
+    #             csv_path=csv_path,
+    #             output_dir=output_dir,
+    #             L=CLOCK_LENGTH,
+    #         )
