@@ -29,7 +29,7 @@ def cast_to_python_types_and_normalize(d):
     return new_dict
 
 
-C = 50
+C = 10
 
 
 
@@ -44,7 +44,7 @@ print(f"total runs that didnt synchronize: {len(data)}")
 known_patterns = {}
 
 for run in data:
-    final_distribution = run[-1, :]
+    final_distribution = run[:]
     values, counts = np.unique(final_distribution, return_counts=True)
     distribution = counts / counts.sum()   # normalize to probabilities
     
