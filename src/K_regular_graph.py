@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import matplotlib.animation as animation
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ======================================
 # 全局参数
@@ -55,6 +56,98 @@ def simulate_fireflies_graph_fast(adj_matrix, K, T, seed):
     # --- 3. 修改：将 None 替换为 phase_history ---
     return flash_counts, phase_history
 
+def generate_connected_regular_graph(args):
+    """
+    子进程任务：为单个 k 生成一个连通的 k-regular 图，并返回邻接矩阵。
+    """
+    k, num_firefly, max_attempts = args
+
+    try:
+        if k < 2:
+            return {
+                "k": k,
+                "success": False,
+                "reason": "K=1 无法形成全连通正则图"
+            }
+
+        # k-regular 图存在条件之一：n*k 必须为偶数
+        if (num_firefly * k) % 2 != 0:
+            return {
+                "k": k,
+                "success": False,
+                "reason": f"N*K={num_firefly*k} 为奇数，不存在 {k}-正则图"
+            }
+
+        attempts = 0
+        while attempts < max_attempts:
+            attempts += 1
+            G = ig.Graph.K_Regular(n=num_firefly, k=k)
+
+            if G.is_connected():
+                adj_matrix = np.array(G.get_adjacency().data, dtype=bool)
+                return {
+                    "k": k,
+                    "success": True,
+                    "attempts": attempts,
+                    "adj_matrix": adj_matrix
+                }
+
+        return {
+            "k": k,
+            "success": False,
+            "reason": f"超过 {max_attempts} 次尝试仍无法生成连通图"
+        }
+
+    except Exception as e:
+        return {
+            "k": k,
+            "success": False,
+            "reason": str(e)
+        }
+
+
+def pre_generate_topologies_parallel(Num_firefly, k_values, T, num_runs,
+                                     max_attempts=1000, max_workers=None):
+    """
+    并行预生成所有 k 的连通正则图，并构造 tasks。
+    """
+    if max_workers is None:
+        max_workers = os.cpu_count()
+
+    print(f"开始预生成连通网络拓扑 (N={Num_firefly}, K=1 到 {Num_firefly - 1})...")
+    print("-" * 45)
+
+    tasks = []
+    worker_args = [(int(k), Num_firefly, max_attempts) for k in k_values]
+
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        future_to_k = {
+            executor.submit(generate_connected_regular_graph, arg): arg[0]
+            for arg in worker_args
+        }
+
+        for future in as_completed(future_to_k):
+            k = future_to_k[future]
+            try:
+                result = future.result()
+
+                if not result["success"]:
+                    print(f"跳过 K = {k:2d} | 理由: {result['reason']}")
+                    continue
+
+                adj_matrix = result["adj_matrix"]
+                attempts = result["attempts"]
+
+                for _ in range(num_runs):
+                    seed = np.random.randint(1, 10**9)
+                    tasks.append((int(k), T, seed, adj_matrix))
+
+                print(f"Successfully generated K = {k:2d} | Attempts: {attempts:2d} | Number of tasks: {num_runs}")
+
+            except Exception as e:
+                print(f"警告: K={k:2d} 拓扑生成失败: {e}")
+
+    return tasks
 
 # ======================================
 # Task B：多进程相变分析
@@ -97,8 +190,8 @@ def taskB_graph(output_dir="../output", random_topo=True):
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    # k_values = np.arange(2, Num_firefly-1, 10)
-    k_values = np.append(np.arange(2, Num_firefly - 1, 10), Num_firefly - 1)
+    k_values = np.arange(2, Num_firefly-1, 1)
+    # k_values = np.append(np.arange(2, Num_firefly - 1, 10), Num_firefly - 1)
     num_runs = 1_00
     T = 1000
 
@@ -112,31 +205,15 @@ def taskB_graph(output_dir="../output", random_topo=True):
                 seed = np.random.randint(1, 10 ** 9)
                 tasks.append((int(k), T, seed))
     else:
-        print(f"开始预生成连通网络拓扑 (N={Num_firefly}, K=1 到 {Num_firefly - 1})...")
-        print("-" * 45)
-        for k in k_values:
-            try:
-                if k < 2:
-                    print(f"跳过 K = {k:2d} | 理由: K=1 无法形成全连通正则图")
-                    continue
-                print(f"Generating a regular graph with K = {k:2d} ...", end="\r")
-                connected = False
-                attempts = 0
-                while not connected:
-                    attempts += 1
-                    # G = nx.random_regular_graph(d=k, n=Num_firefly)
-                    G = ig.Graph.K_Regular(n=Num_firefly, k=k)
-                    if G.is_connected():
-                        connected = True
-                    if attempts > 1000:
-                        raise Exception("超过1000次尝试仍无法生成连通图")
-                adj_matrix = np.array(G.get_adjacency().data, dtype=bool)
-                for _ in range(num_runs):
-                    seed = np.random.randint(1, 10 ** 9)
-                    tasks.append((int(k), T, seed, adj_matrix))
-                print(f"Successfully generated K = {k:2d} | Attempts: {attempts:2d} | Number of tasks: {num_runs}")
-            except Exception as e:
-                print(f"\n警告: K={k:2d} 拓扑生成失败: {e}")
+        k_values = range(1, Num_firefly)
+        tasks = pre_generate_topologies_parallel(
+            Num_firefly=Num_firefly,
+            k_values=k_values,
+            T=T,
+            num_runs=num_runs,
+            max_attempts=1000,
+            # max_workers=8,
+        )
 
     worker = _worker_graph_task_random_topo if random_topo else _worker_graph_task
 
@@ -1736,5 +1813,5 @@ if __name__ == "__main__":
     #     rng_seed=42,
     # )
 
-    taskB_graph("../data/distribution",random_topo=False)
+    taskB_graph("../output/noiseless_simulation",random_topo=False)
     # taskB_graph("../data/distribution", random_topo=False)
