@@ -1,24 +1,14 @@
 import numpy as np
 import os
-import platform
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
+import pickle
 from tqdm import tqdm
 import argparse
 
-from simulation import simulate_fireflies_communication_range
+from simulation import simulate_fireflies_r_communication_range
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 if __name__ == "__main__":
-    # for interactive plots
-    if platform.system() == "Darwin":
-        matplotlib.use('QtAgg')
-        plt.rcParams.update({'font.size': 20})
-    elif platform.system() == "Linux":
-        def is_headless():
-            return os.environ.get("DISPLAY", "") == ""
-    
     arg_parser = argparse.ArgumentParser()
     
     arg_parser.add_argument('--save_dir', type=str, default="/Volumes/Data/other/2026_firefly_synchronization")
@@ -30,16 +20,28 @@ if __name__ == "__main__":
     arg_parser.add_argument('--T', type=int, default=1000)  # number of time steps to simulate
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
-    arg_parser.add_argument('--r_range', nargs="+", type=int, default=[0, 10, 20, 30, 100])
+    arg_parser.add_argument('--r_range', nargs="+", type=float, default=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5])
     
     args = arg_parser.parse_args()
     
+    # make a quick check if the results already exist and skip if they do
+    flash_counts_path = f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.csv"
+    if os.path.isfile(flash_counts_path):
+        print(f"{flash_counts_path} already exists. skipping...")
+        exit(0)
+    
     run_params = []
     save_flash_counts = {}
+    save_phase_history = {}
+    save_init_state_failed = {}
+    save_init_state_success = {}
     avg_num_neighbors = {}
     for r in args.r_range:
-        save_flash_counts[r] = []
+        save_flash_counts[r] = np.zeros(args.n_seeds)
         avg_num_neighbors[r] = []
+        save_phase_history[r] = np.zeros((args.n_seeds, args.N))
+        save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
+        save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(1):
             rng = np.random.default_rng(seed_graph)
             pos = rng.random((args.N, 2))
@@ -47,37 +49,54 @@ if __name__ == "__main__":
             communication_graph = ((dists < r) & (dists > 0)).astype(int)
             
             avg_num_neighbors[r].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N-1))))
-            for seed in range(10000):
+            for seed in range(args.n_seeds):
                 rng = np.random.default_rng(seed)
-                phases = rng.integers(0, args.clock_length, size=args.N)
+                phases = rng.integers(0, args.C, size=args.N)
                 
-                run_params.append((args.N, args.clock_length, phases, communication_graph, args.T, args.flash_proportion, r))
+                run_params.append((args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, r, seed))
     
     avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
-    avg_num_neighbors_df.to_csv(f"{args.save_dir}/N={args.N}_clock_lnegth={args.clock_length}_T={args.T}_flash_proportion={args.flash_proportion}_r_com_range_avg_neighbors.csv",
+    avg_num_neighbors_df.to_csv(f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_r_com_range_avg_neighbors.csv",
         index=False)
     print(f"done setting up the parameters ...")
     print(
-        f"Running: N={args.N} | C={args.C} | T={args.T} | flash_proportion={args.flash_proportion} | update_noise={args.update_noise} | r_range={args.k_range}")
+        f"Running: N={args.N} | C={args.C} | T={args.T} | flash_proportion={args.flash_proportion} | update_noise={args.update_noise} | r_range={args.r_range}")
     
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         
         futures = [
-            executor.submit(simulate_fireflies_communication_range, N, clock_length, phases, communication_graph, T,
-                            flash_proportion, r, args.update_noise)
-            for (N, clock_length, phases, communication_graph, T, flash_proportion, r) in run_params
+            executor.submit(simulate_fireflies_r_communication_range, N, clock_length, phases, communication_graph, args.T,
+                            flash_proportion, r, seed, args.update_noise)
+            for (N, clock_length, phases, communication_graph, args.T, flash_proportion, r, seed) in run_params
         ]
         
         for future in tqdm(as_completed(futures), total=len(futures)):
-            flash_counts, phase_history, groups_history, r = future.result()
-            save_flash_counts[r].append(np.max(flash_counts))
-        
+            flash_counts, phase_history, groups_history, r, init_clock_state, seed = future.result()
+            save_flash_counts[r][seed] = np.max(flash_counts)
+            if np.max(flash_counts) <= args.N * 0.80 and r > args.N * 0.1:
+                save_phase_history[r][seed] = phase_history
+                save_init_state_failed[r][seed] = init_clock_state
+            else:
+                save_init_state_success[r][seed] = init_clock_state
+    
     save_flash_counts = pd.DataFrame(save_flash_counts)
     
-    noise_str = f"_update_noise={args.update_noise}"
-    
     save_flash_counts.to_csv(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.clock_length}_T={args.T}_flash_proportion={args.flash_proportion}{noise_str}_r_com_range_flash_counts.csv",
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.csv",
         index=False)
     
+    with open(
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_phase_history.pkl",
+        'wb') as f:
+        pickle.dump(save_phase_history, f)
+
+    with open(
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_init_state_failed.pkl",
+        'wb') as f:
+        pickle.dump(save_init_state_failed, f)
+
+    with open(
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_init_state_sucess.pkl",
+        'wb') as f:
+        pickle.dump(save_init_state_success, f)
     

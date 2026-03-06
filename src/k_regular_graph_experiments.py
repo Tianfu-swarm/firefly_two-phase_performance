@@ -1,10 +1,6 @@
 import numpy as np
 import os
-import platform
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-import networkx as nx
 import igraph as ig
 import random
 import pickle
@@ -15,14 +11,6 @@ from simulation import simulate_fireflies_k_regular_graph
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 if __name__ == "__main__":
-    # for interactive plots
-    if platform.system() == "Darwin":
-        matplotlib.use('QtAgg')
-        plt.rcParams.update({'font.size': 20})
-    elif platform.system() == "Linux":
-        def is_headless():
-            return os.environ.get("DISPLAY", "") == ""
-    
     arg_parser = argparse.ArgumentParser()
     
     arg_parser.add_argument('--save_dir', type=str, default="/Volumes/Data/other/2026_firefly_synchronization")
@@ -37,6 +25,12 @@ if __name__ == "__main__":
     arg_parser.add_argument('--k_range', nargs="+", type=int, default=[0, 10, 20, 30, 100])
     
     args = arg_parser.parse_args()
+    
+    # make a quick check if the results already exist and skip if they do
+    flash_counts_path = f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv"
+    if os.path.isfile(flash_counts_path):
+        print(f"{flash_counts_path} already exists. skipping...")
+        exit(0)
     
     # ensure k values are valid (k must be less than N for k-regular graph)
     args.k_range = [k for k in args.k_range if k <= args.N]
@@ -101,23 +95,21 @@ if __name__ == "__main__":
 
     save_flash_counts = pd.DataFrame(save_flash_counts)
 
-    noise_str = f"_update_noise={args.update_noise}"
-
     save_flash_counts.to_csv(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}{noise_str}_k_regular_graph_flash_counts.csv",
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv",
         index=False)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}{noise_str}_k_regular_graph_phase_history.pkl",
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_phase_history.pkl",
         'wb') as f:
         pickle.dump(save_phase_history, f)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}{noise_str}_k_regular_graph_init_state_failed.pkl",
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_failed.pkl",
         'wb') as f:
         pickle.dump(save_init_state_failed, f)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}{noise_str}_k_regular_graph_init_state_sucess.pkl",
+        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_sucess.pkl",
         'wb') as f:
         pickle.dump(save_init_state_success, f)
