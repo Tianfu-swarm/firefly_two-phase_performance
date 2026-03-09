@@ -56,11 +56,18 @@ if __name__ == "__main__":
                 np.random.seed(seed_graph)
                 ig.set_random_number_generator(random)
                 try:
-                    G = ig.Graph.K_Regular(args.N, k)
+                    if k > (args.N / 2):  # we can use the complement to be quicker
+                        G = ig.Graph.K_Regular(args.N, args.N - 1 - k)
+                        communication_graph = np.ones((args.N, args.N))
+                        np.fill_diagonal(communication_graph, 0)
+                        communication_graph -= np.array(G.get_adjacency().data)
+                    else:
+                        G = ig.Graph.K_Regular(args.N, k)
+                        communication_graph = np.array(G.get_adjacency().data)
                 except:
                     print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
                     continue
-                communication_graph = np.array(G.get_adjacency().data)
+                
 
             avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
