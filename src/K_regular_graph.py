@@ -56,54 +56,91 @@ def simulate_fireflies_graph_fast(adj_matrix, K, T, seed):
     # --- 3. 修改：将 None 替换为 phase_history ---
     return flash_counts, phase_history
 
+
 def generate_connected_regular_graph(args):
     """
     子进程任务：为单个 k 生成一个连通的 k-regular 图，并返回邻接矩阵。
+
+    策略：
+      - 若 k <= (n-1) / 2 : 直接生成 k-regular 图
+      - 若 k >  (n-1) / 2 : 生成 (n-1-k)-regular 图，取补图得到 k-regular 图
+        例：n=100, k=98 → 先生成 k=1 的匹配，补图即 k=98
     """
     k, num_firefly, max_attempts = args
+    n = num_firefly
+    k_complement = (n - 1) - k  # 补图对应的度数
 
     try:
-        if k < 2:
+        if k < 1:
+            return {"k": k, "success": False, "reason": "K < 1 无法形成有意义的正则图"}
+
+        if k >= n:
+            return {"k": k, "success": False, "reason": f"K={k} >= N={n}，不合法"}
+
+        # n-1 度即完全图，直接构造
+        if k == n - 1:
+            adj_matrix = np.ones((n, n), dtype=bool)
+            np.fill_diagonal(adj_matrix, False)
+            return {"k": k, "success": True, "attempts": 1,
+                    "adj_matrix": adj_matrix, "method": "complete_graph"}
+
+        # 决定策略
+        use_complement = (k > (n - 1) / 2)
+
+        if use_complement:
+            # 实际生成的度数（低度，容易生成）
+            k_to_gen = k_complement
+            method = f"complement_of_{k_to_gen}_regular"
+        else:
+            k_to_gen = k
+            method = "direct"
+
+        # k_to_gen * n 必须为偶数
+        if (n * k_to_gen) % 2 != 0:
             return {
-                "k": k,
-                "success": False,
-                "reason": "K=1 无法形成全连通正则图"
+                "k": k, "success": False,
+                "reason": f"N*K_gen={n}*{k_to_gen} 为奇数，不存在 {k_to_gen}-正则图"
             }
 
-        # k-regular 图存在条件之一：n*k 必须为偶数
-        if (num_firefly * k) % 2 != 0:
-            return {
-                "k": k,
-                "success": False,
-                "reason": f"N*K={num_firefly*k} 为奇数，不存在 {k}-正则图"
-            }
+        # 对于补图路径，k_to_gen=0 意味着 k=n-1（完全图），已在上面处理
+        if k_to_gen == 0:
+            adj_matrix = np.ones((n, n), dtype=bool)
+            np.fill_diagonal(adj_matrix, False)
+            return {"k": k, "success": True, "attempts": 1,
+                    "adj_matrix": adj_matrix, "method": "complete_graph_via_complement"}
 
         attempts = 0
         while attempts < max_attempts:
             attempts += 1
-            G = ig.Graph.K_Regular(n=num_firefly, k=k)
+            G_gen = ig.Graph.K_Regular(n=n, k=k_to_gen)
+            adj_gen = np.array(G_gen.get_adjacency().data, dtype=bool)
 
-            if G.is_connected():
-                adj_matrix = np.array(G.get_adjacency().data, dtype=bool)
-                return {
-                    "k": k,
-                    "success": True,
-                    "attempts": attempts,
-                    "adj_matrix": adj_matrix
-                }
+            if use_complement:
+                adj_matrix = ~adj_gen
+                np.fill_diagonal(adj_matrix, False)
+                G_check = ig.Graph.Adjacency(adj_matrix.tolist(), mode=ig.ADJ_UNDIRECTED)
+                if not G_check.is_connected():
+                    continue
+            else:
+                if not G_gen.is_connected():
+                    continue
+                adj_matrix = adj_gen
+
+            return {
+                "k": k,
+                "success": True,
+                "attempts": attempts,
+                "adj_matrix": adj_matrix,
+                "method": method,
+            }
 
         return {
-            "k": k,
-            "success": False,
-            "reason": f"超过 {max_attempts} 次尝试仍无法生成连通图"
+            "k": k, "success": False,
+            "reason": f"超过 {max_attempts} 次仍无法生成连通图（method={method}）"
         }
 
     except Exception as e:
-        return {
-            "k": k,
-            "success": False,
-            "reason": str(e)
-        }
+        return {"k": k, "success": False, "reason": str(e)}
 
 
 def pre_generate_topologies_parallel(Num_firefly, k_values, T, num_runs,
@@ -246,8 +283,9 @@ def taskB_graph(output_dir="../output", random_topo=True):
     plt.grid(True, linestyle=':', alpha=0.6)
 
     save_scatter = os.path.join(output_dir, f"{random_topo}_taskB_graph_scatter{Num_firefly}_numRuns{num_runs}.png")
-    plt.savefig(save_scatter, dpi=300,bbox_inches='tight')
+    plt.savefig(save_scatter, dpi=300, bbox_inches='tight')
     plt.close()
+    print(f"Performance scatter saved to: {output_dir}")
 
     # --- 绘图 2：热力图 (复刻原风格) ---
     all_amps = [a for k in k_values for a in amp_dict[k]]
@@ -276,6 +314,7 @@ def taskB_graph(output_dir="../output", random_topo=True):
     save_heatmap = os.path.join(output_dir, f"{random_topo}_taskB_graph_heatmap{Num_firefly}_numRuns{num_runs}.png")
     plt.savefig(save_heatmap, dpi=300,bbox_inches='tight')
     plt.close()
+    print(f"Performance heatmap saved to: {output_dir}")
 
     # --- 保存热力图矩阵为 CSV（与图片同名） ---
     save_heatmap_csv = os.path.splitext(save_heatmap)[0] + ".csv"
@@ -301,7 +340,7 @@ def taskB_graph(output_dir="../output", random_topo=True):
         index_label="amplitude_bin"
     )
 
-    print(f"热力图矩阵 CSV 已保存至: {save_heatmap_csv}")
+    print(f"Heatmap matrix CSV saved to: {save_heatmap_csv}")
 
 
 # ======================================
