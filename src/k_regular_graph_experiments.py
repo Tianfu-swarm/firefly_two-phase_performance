@@ -27,7 +27,7 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv"
+    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
     avg_num_neighbors_df.to_csv(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_k_regular_graph_avg_neighbors.csv",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_k_regular_graph_avg_neighbors.csv",
         index=False)
     print(f"done setting up the parameters ...")
     print(f"Running: N={args.N} | C={args.C} | T={args.T} | flash_proportion={args.flash_proportion} | update_noise={args.update_noise} | k_range={args.k_range}")
@@ -96,20 +96,20 @@ if __name__ == "__main__":
     save_flash_counts = pd.DataFrame(save_flash_counts)
 
     save_flash_counts.to_csv(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv",
         index=False)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_phase_history.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_phase_history.pkl",
         'wb') as f:
         pickle.dump(save_phase_history, f)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_failed.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_failed.pkl",
         'wb') as f:
         pickle.dump(save_init_state_failed, f)
 
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_sucess.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_init_state_sucess.pkl",
         'wb') as f:
         pickle.dump(save_init_state_success, f)

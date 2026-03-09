@@ -28,7 +28,7 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl"
+    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -61,13 +61,20 @@ if __name__ == "__main__":
             communication_graph_2 = np.array(G.get_adjacency().data)
             
             for seed in range(args.n_seeds):
-                rng = np.random.default_rng(seed)
-                group_size_fill = args.N - 3 * (args.N // 4)
-                phases = np.concatenate([np.ones(args.N // 4, dtype=int) * i * (args.C // 4) for i in range(3)])
-                phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * 3 * (args.C // 4)])
-                # print(f"phases (shape: {phases.shape}): {phases}")
-                # print(f"phase shift: {args.C // 4}")
-                #
+                n_subgroups = args.C
+                shifts = (args.C // n_subgroups)
+                group_size_fill = args.N - (n_subgroups-1) * (args.N // n_subgroups)
+                # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * i * shifts for i in range(n_subgroups-1)])
+                # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * (n_subgroups-1) * (shifts)])
+                # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * shifts * 0,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 1,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 2,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 3,])
+                # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * shifts * 4])
+                phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                print(f"phases (shape: {phases.shape}): {phases}")
+                print(f"phase shift: {shifts}")
+
                 run_params.append(
                     (args.N, args.C, phases, communication_graph_1, communication_graph_2, args.t_switch, args.T,
                      args.flash_proportion, k, seed_graph))
@@ -97,21 +104,21 @@ if __name__ == "__main__":
                 save_init_state_success[k][seed] = init_clock_state
     
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
         'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
         'wb') as f:
         pickle.dump(save_phase_history, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
         'wb') as f:
         pickle.dump(save_init_state_failed, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_clock_lnegth={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
         'wb') as f:
         pickle.dump(save_init_state_success, f)

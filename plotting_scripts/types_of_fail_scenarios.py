@@ -33,11 +33,11 @@ C = 10
 
 
 
-with open(f'/Volumes/Data/other/2026_firefly_synchronization/N=100_clock_lnegth={C}_T=1000_flash_proportion=0.5_k_regular_graph_phase_history.pkl', 'rb') as f:
+with open(f'/Volumes/Data/other/2026_firefly_synchronization/N=50_C={C}_T=1000_flash_proportion=0.5_update_noise=0.0_k_regular_graph_phase_history.pkl', 'rb') as f:
     data = pickle.load(f)
     
 print(data.keys())
-data = data[100]
+data = data[50]
 
 print(f"total runs that didnt synchronize: {len(data)}")
 
