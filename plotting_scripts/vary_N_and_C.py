@@ -12,10 +12,10 @@ pd.set_option('display.max_rows', None)
 
 T = 10000
 flash_proportion = 0.5
-noise_level = 0.2  # Set None to deactivate:  0.05
+noise_level = 1.0  # Set None to deactivate:  0.05
 noise_str = f"_update_noise={noise_level}"  # set noise level
 Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
-Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 70]  # , 54, 58, 62, 66, 70
+Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  # , 54, 58, 62, 66, 70
 use = "r"  # "k" or "r"
 # load data
 save_flash_counts = {}

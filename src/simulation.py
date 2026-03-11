@@ -24,6 +24,7 @@ def simulate_fireflies_k_regular_graph(N=150,
     that is used for making the noise level
     :return:
     """
+    rng = np.random.default_rng(seed)
     flash_length = int(clock_length * flash_proportion)
     flash_start = int(clock_length - flash_length)
     trigger_phase = flash_start + 1  # NOTE this is a constant
@@ -58,7 +59,7 @@ def simulate_fireflies_k_regular_graph(N=150,
         else:
             # noisy update: with prob update_noise do the opposite of the normal update, with prob 1-update_noise
             #  do the normal update
-            noise = np.random.random(len(idxs)) <= update_noise
+            noise = rng.random(len(idxs)) <= update_noise
             phases[idxs[noise != majority_flashing]] += 1
     
     return flash_counts, phase_history[-1, :], groups_history, k, init_clock_state, seed
@@ -91,6 +92,7 @@ def simulate_fireflies_k_regular_graph_transition(N=150,
     that is used for making the noise level
     :return:
     """
+    rng = np.random.default_rng(seed)
     flash_length = int(clock_length * flash_proportion)
     flash_start = int(clock_length - flash_length)
     trigger_phase = flash_start + 1  # NOTE this is a constant
@@ -129,7 +131,7 @@ def simulate_fireflies_k_regular_graph_transition(N=150,
         else:
             # noisy update: with prob update_noise do the opposite of the normal update, with prob 1-update_noise
             #  do the normal update
-            noise = np.random.random(len(idxs)) <= update_noise
+            noise = rng.random(len(idxs)) <= update_noise
             phases[idxs[noise != majority_flashing]] += 1
     
     return flash_counts, phase_history[-1, :], groups_history, k, init_clock_state, seed
@@ -158,6 +160,7 @@ def simulate_fireflies_r_communication_range(N=150,
     that is used for making the noise level
     :return:
     """
+    rng = np.random.default_rng(seed)
     flash_length = int(clock_length * flash_proportion)
     flash_start = int(clock_length - flash_length)
     trigger_phase = flash_start + 1  # NOTE this is a constant
@@ -192,7 +195,7 @@ def simulate_fireflies_r_communication_range(N=150,
         else:
             # noisy update: with prob update_noise do the opposite of the normal update, with prob 1-update_noise
             #  do the normal update
-            noise = np.random.random(len(idxs)) <= update_noise
+            noise = rng.random(len(idxs)) <= update_noise
             phases[idxs[noise != majority_flashing]] += 1
     
     # return flash_counts, phase_history[-1, :], groups_history, r

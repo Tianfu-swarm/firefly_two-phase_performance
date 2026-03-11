@@ -25,10 +25,10 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.csv"
-    if os.path.isfile(flash_counts_path):
-        print(f"{flash_counts_path} already exists. skipping...")
-        exit(0)
+    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.pkl"
+    # if os.path.isfile(flash_counts_path):
+    #     print(f"{flash_counts_path} already exists. skipping...")
+    #     exit(0)
     
     run_params = []
     save_flash_counts = {}
@@ -37,9 +37,9 @@ if __name__ == "__main__":
     save_init_state_success = {}
     avg_num_neighbors = {}
     for r in args.r_range:
-        save_flash_counts[r] = np.zeros(args.n_seeds)
+        save_flash_counts[r] = {}
         avg_num_neighbors[r] = []
-        save_phase_history[r] = np.zeros((args.n_seeds, args.N))
+        save_phase_history[r] = {}
         save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
         save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(1):
@@ -72,18 +72,17 @@ if __name__ == "__main__":
         
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, r, init_clock_state, seed = future.result()
-            save_flash_counts[r][seed] = np.max(flash_counts)
-            if np.max(flash_counts) <= args.N * 0.80 and r > args.N * 0.1:
-                save_phase_history[r][seed] = phase_history
+            save_flash_counts[r][seed] = flash_counts
+            save_phase_history[r][seed] = phase_history
+            if np.max(flash_counts) <= args.N * 0.90 and r > args.N * 0.1:
                 save_init_state_failed[r][seed] = init_clock_state
             else:
                 save_init_state_success[r][seed] = init_clock_state
     
-    save_flash_counts = pd.DataFrame(save_flash_counts)
-    
-    save_flash_counts.to_csv(
-        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.csv",
-        index=False)
+    with open(
+        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_flash_counts.pkl",
+        'wb') as f:
+        pickle.dump(save_flash_counts, f)
     
     with open(
         f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_r_com_range_phase_history.pkl",

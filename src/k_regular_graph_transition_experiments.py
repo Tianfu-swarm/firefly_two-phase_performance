@@ -97,7 +97,7 @@ if __name__ == "__main__":
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, k, init_clock_state, seed = future.result()
             save_flash_counts[k][seed] = flash_counts
-            if np.max(flash_counts) <= args.N * 0.80 and k > args.N * 0.1:
+            if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
                 save_phase_history[k][seed] = phase_history
                 save_init_state_failed[k][seed] = init_clock_state
             else:
