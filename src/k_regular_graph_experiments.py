@@ -15,19 +15,20 @@ if __name__ == "__main__":
     
     arg_parser.add_argument('--save_dir', type=str, default="/Volumes/Data/other/2026_firefly_synchronization")
     arg_parser.add_argument('--n_seeds', type=int, default=1000)
-    arg_parser.add_argument('--graph_seeds', type=int, default=1)
+    arg_parser.add_argument('--graph_seeds', type=int, default=100)
     # simulation params
     arg_parser.add_argument('--N', type=int, default=100)  # number of fireflies
     arg_parser.add_argument('--C', type=int, default=10)  # clock length (number of discrete phases)
     arg_parser.add_argument('--T', type=int, default=1000)  # number of time steps to simulate
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
+    arg_parser.add_argument('--qr_threshold', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
     arg_parser.add_argument('--k_range', nargs="+", type=int, default=[0, 10, 20, 30, 100])
     
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv"
+    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_flash_counts.csv"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -48,25 +49,27 @@ if __name__ == "__main__":
         save_init_state_failed[k] = np.zeros((args.n_seeds, args.N))
         save_init_state_success[k] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
-            if k == args.N:
-                communication_graph = np.ones((args.N, args.N))
-                np.fill_diagonal(communication_graph, 0)
-            else:
-                random.seed(seed_graph)
-                np.random.seed(seed_graph)
-                ig.set_random_number_generator(random)
-                try:
-                    if k > (args.N / 2):  # we can use the complement to be quicker
-                        G = ig.Graph.K_Regular(args.N, args.N - 1 - k)
-                        communication_graph = np.ones((args.N, args.N))
-                        np.fill_diagonal(communication_graph, 0)
-                        communication_graph -= np.array(G.get_adjacency().data)
-                    else:
-                        G = ig.Graph.K_Regular(args.N, k)
-                        communication_graph = np.array(G.get_adjacency().data)
-                except:
-                    print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
-                    continue
+            data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
+            communication_graph = data["communication_graph"]
+            # if k == args.N:
+            #     communication_graph = np.ones((args.N, args.N))
+            #     np.fill_diagonal(communication_graph, 0)
+            # else:
+            #     random.seed(seed_graph)
+            #     np.random.seed(seed_graph)
+            #     ig.set_random_number_generator(random)
+            #     try:
+            #         if k > (args.N / 2):  # we can use the complement to be quicker
+            #             G = ig.Graph.K_Regular(args.N, args.N - 1 - k)
+            #             communication_graph = np.ones((args.N, args.N))
+            #             np.fill_diagonal(communication_graph, 0)
+            #             communication_graph -= np.array(G.get_adjacency().data)
+            #         else:
+            #             G = ig.Graph.K_Regular(args.N, k)
+            #             communication_graph = np.array(G.get_adjacency().data)
+            #     except:
+            #         print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
+            #         continue
                 
 
             avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
@@ -74,7 +77,7 @@ if __name__ == "__main__":
                 rng = np.random.default_rng(seed)
                 phases = rng.integers(0, args.C, size=args.N)
 
-                run_params.append((args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, k, seed))
+                run_params.append((args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, k, seed))
 
     avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
     avg_num_neighbors_df.to_csv(
@@ -87,8 +90,8 @@ if __name__ == "__main__":
 
         futures = [
             executor.submit(simulate_fireflies_k_regular_graph, N, clock_length, phases, communication_graph, args.T,
-                            flash_proportion, k, seed, args.update_noise)
-            for (N, clock_length, phases, communication_graph, args.T, flash_proportion, k, seed) in run_params
+                            flash_proportion, qr_threshold, k, seed, args.update_noise)
+            for (N, clock_length, phases, communication_graph, args.T, flash_proportion, qr_threshold, k, seed) in run_params
         ]
 
         for future in tqdm(as_completed(futures), total=len(futures)):

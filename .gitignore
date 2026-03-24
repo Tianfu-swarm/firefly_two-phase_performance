@@ -8,3 +8,4 @@ data
 *.npc
 *.png
 cluster
+src/sandbox.py

@@ -7,6 +7,7 @@ def simulate_fireflies_k_regular_graph(N=150,
                                        communication_graph=np.zeros((150, 150)),
                                        T=1000,
                                        flash_proportion=0.5,
+                                       qr_threshold=0.5,
                                        k=-1,
                                        seed=42,
                                        update_noise=None):
@@ -18,6 +19,7 @@ def simulate_fireflies_k_regular_graph(N=150,
     :param communication_graph: N x N matrix with 1 for communication link and 0 no communication link
     :param T: The number of time steps the simulation runs
     :param flash_proportion: The length of flashing (usually 0.5)
+    :param qr_threshold: The threshold for the quorum sensing mechanism
     :param k: Just a path through for logging
     :param seed: Just a path through for logging
     :param update_noise: default None, there is no noise when updating the phase, otherwise specify a float value
@@ -51,7 +53,7 @@ def simulate_fireflies_k_regular_graph(N=150,
         
         neighbor_flash_count = communication_graph[idxs] @ flashing  # (len(idxs), 1)
         neighbor_total = communication_graph[idxs].sum(axis=1)  # total neighbors
-        majority_flashing = (neighbor_flash_count > neighbor_total / 2)  # (len(idxs), 1)
+        majority_flashing = (neighbor_flash_count > neighbor_total * qr_threshold)  # (len(idxs), 1)
         
         # update phase -- we do not need to modulo bc it only affects fireflies in the middle of their clock cycle
         if update_noise is None:
@@ -73,6 +75,7 @@ def simulate_fireflies_k_regular_graph_transition(N=150,
                                                   t_switch=500,
                                                   T=1000,
                                                   flash_proportion=0.5,
+                                                  qr_threshold=0.5,
                                                   k=-1,
                                                   seed=42,
                                                   update_noise=None):
@@ -86,6 +89,7 @@ def simulate_fireflies_k_regular_graph_transition(N=150,
     :param t_switch: The time step at which the communication graph switches from communication_graph_1 to communication_graph_2
     :param T: The number of time steps the simulation runs
     :param flash_proportion: The length of flashing (usually 0.5)
+    :param qr_threshold: The threshold for the quorum sensing mechanism
     :param k: Just a path through for logging
     :param seed: Just a path through for logging
     :param update_noise: default None, there is no noise when updating the phase, otherwise specify a float value
@@ -123,7 +127,7 @@ def simulate_fireflies_k_regular_graph_transition(N=150,
         else:
             neighbor_flash_count = communication_graph_2[idxs] @ flashing  # (len(idxs), 1)
             neighbor_total = communication_graph_2[idxs].sum(axis=1)  # total neighbors
-        majority_flashing = (neighbor_flash_count > neighbor_total / 2)  # (len(idxs), 1)
+        majority_flashing = (neighbor_flash_count > neighbor_total * qr_threshold)  # (len(idxs), 1)
         
         # update phase -- we do not need to modulo bc it only affects fireflies in the middle of their clock cycle
         if update_noise is None:
@@ -143,6 +147,7 @@ def simulate_fireflies_r_communication_range(N=150,
                                              communication_graph=np.zeros((150, 150)),
                                              T=1000,
                                              flash_proportion=0.5,
+                                             qr_threshold=0.5,
                                              r=-1,
                                              seed=42,
                                              update_noise=None):
@@ -154,6 +159,7 @@ def simulate_fireflies_r_communication_range(N=150,
     :param communication_graph: N x N matrix with 1 for communication link and 0 no communication link
     :param T: The number of time steps the simulation runs
     :param flash_proportion: The length of flashing (usually 0.5)
+    :param qr_threshold: The threshold for the quorum sensing mechanism
     :param r: Just a path through for logging (communication range)
     :param seed: Just a path through for logging
     :param update_noise: default None, there is no noise when updating the phase, otherwise specify a float value
@@ -187,7 +193,7 @@ def simulate_fireflies_r_communication_range(N=150,
         
         neighbor_flash_count = communication_graph[idxs] @ flashing  # (len(idxs), 1)
         neighbor_total = communication_graph[idxs].sum(axis=1)  # total neighbors
-        majority_flashing = (neighbor_flash_count > neighbor_total / 2)  # (len(idxs), 1)
+        majority_flashing = (neighbor_flash_count > neighbor_total * qr_threshold)  # (len(idxs), 1)
         
         # update phase -- we do not need to modulo bc it only affects fireflies in the middle of their clock cycle
         if update_noise is None:

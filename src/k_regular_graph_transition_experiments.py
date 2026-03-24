@@ -23,7 +23,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('--t_switch', type=int, default=100)  # number of time steps to simulate
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
-    arg_parser.add_argument('--reduce_full_k_by', nargs="+", type=int, default=[10])
+    arg_parser.add_argument('--reduce_full_k_by', nargs="+", type=float, default=[0.05, 0.1, 0.2, 0.3])
     
     args = arg_parser.parse_args()
     
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         exit(0)
     
     # ensure k values are valid (k must be less than N for k-regular graph)
-    args.k_reduced_range = [args.N - k_reduced for k_reduced in args.reduce_full_k_by if k_reduced <= args.N]
+    args.k_reduced_range = [int(args.N - args.N * k_reduced) for k_reduced in args.reduce_full_k_by]
     # full communication to start
     communication_graph_1 = np.ones((args.N, args.N))
     
@@ -49,16 +49,18 @@ if __name__ == "__main__":
         save_init_state_failed[k] = np.zeros((args.graph_seeds, args.N))
         save_init_state_success[k] = np.zeros((args.graph_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
-            random.seed(seed_graph)
-            np.random.seed(seed_graph)
-            ig.set_random_number_generator(random)
-            try:
-                G = ig.Graph.K_Regular(args.N, k)
-            except:
-                print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
-                continue
-            print(f"done generating the graph for k={k} and seed={seed_graph}")
-            communication_graph_2 = np.array(G.get_adjacency().data)
+            data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
+            communication_graph_2 = data["communication_graph"]
+            # random.seed(seed_graph)
+            # np.random.seed(seed_graph)
+            # ig.set_random_number_generator(random)
+            # try:
+            #     G = ig.Graph.K_Regular(args.N, k)
+            # except:
+            #     print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
+            #     continue
+            # print(f"done generating the graph for k={k} and seed={seed_graph}")
+            # communication_graph_2 = np.array(G.get_adjacency().data)
             
             for seed in range(args.n_seeds):
                 n_subgroups = args.C

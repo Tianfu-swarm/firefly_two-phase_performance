@@ -1,7 +1,8 @@
-graph_seeds=2
+n_seeds=10
+graph_seeds=100
 T=10000
-reduce_full_k_by=(10 20 30)
-Ns=(50)  # number of fireflies: 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200
+reduce_full_k_by=(0.05 0.1 0.2 0.3)  # % of links to be removed 0.05 = 5 %
+Ns=(50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200)  # number of fireflies
 Cs=(10 14 18 22 26 30 34 38 42 46 50)  # 50 seems to be the upper limit considering T=1000 54 58 62 66 70  14 18 22 26 30 34 38 42 46 50
 update_noises=(0.0)  #  0.1 0.2 1
 
