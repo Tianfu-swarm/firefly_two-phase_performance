@@ -59,7 +59,7 @@ if __name__ == "__main__":
         (N, int(N - missing), seed)
         for N in np.arange(50, 201, 10)
         for missing in [0.05*N, 0.1*N,0.2*N,0.3*N]
-        for seed in np.arange(0, 1, 1)
+        for seed in np.arange(0, 100, 1)
     ]
     
     with ProcessPoolExecutor(max_workers=10) as executor:

@@ -22,13 +22,14 @@ if __name__ == "__main__":
     arg_parser.add_argument('--T', type=int, default=1000)  # number of time steps to simulate
     arg_parser.add_argument('--t_switch', type=int, default=100)  # number of time steps to simulate
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
+    arg_parser.add_argument('--qr_threshold', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
     arg_parser.add_argument('--reduce_full_k_by', nargs="+", type=float, default=[0.05, 0.1, 0.2, 0.3])
     
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl"
+    flash_counts_path = f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.pkl"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -49,7 +50,7 @@ if __name__ == "__main__":
         save_init_state_failed[k] = np.zeros((args.graph_seeds, args.N))
         save_init_state_success[k] = np.zeros((args.graph_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
-            data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
+            data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={int(seed_graph)}.npz")
             communication_graph_2 = data["communication_graph"]
             # random.seed(seed_graph)
             # np.random.seed(seed_graph)
@@ -74,12 +75,12 @@ if __name__ == "__main__":
                 #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 3,])
                 # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * shifts * 4])
                 phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
-                print(f"phases (shape: {phases.shape}): {phases}")
-                print(f"phase shift: {shifts}")
-
+                # print(f"phases (shape: {phases.shape}): {phases}")
+                # print(f"phase shift: {shifts}")
+                final_seed = int(args.n_seeds * seed_graph + seed)
                 run_params.append(
                     (args.N, args.C, phases, communication_graph_1, communication_graph_2, args.t_switch, args.T,
-                     args.flash_proportion, k, seed_graph))
+                     args.flash_proportion, k, final_seed))
 
     print(f"done setting up the parameters ...")
     print(
@@ -90,7 +91,7 @@ if __name__ == "__main__":
         futures = [
             executor.submit(simulate_fireflies_k_regular_graph_transition, N, clock_length, phases,
                             communication_graph_1, communication_graph_2, t_switch, T,
-                            flash_proportion, k, seed, args.update_noise)
+                            flash_proportion, args.qr_threshold, k, seed, args.update_noise)
             for
             (N, clock_length, phases, communication_graph_1, communication_graph_2, t_switch, T, flash_proportion, k,
              seed) in run_params
@@ -106,21 +107,21 @@ if __name__ == "__main__":
                 save_init_state_success[k][seed] = init_clock_state
     
     with open(
-        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
+        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
         'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
+        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
         'wb') as f:
         pickle.dump(save_phase_history, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
+        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
         'wb') as f:
         pickle.dump(save_init_state_failed, f)
     
     with open(
-        f"{args.save_dir}/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
+        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
         'wb') as f:
         pickle.dump(save_init_state_success, f)
