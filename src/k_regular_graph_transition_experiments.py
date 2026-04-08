@@ -46,9 +46,9 @@ if __name__ == "__main__":
     save_init_state_success = {}
     for k in args.k_reduced_range:
         save_flash_counts[k] = {}
-        save_phase_history[k] = np.zeros((args.graph_seeds, args.N))
-        save_init_state_failed[k] = np.zeros((args.graph_seeds, args.N))
-        save_init_state_success[k] = np.zeros((args.graph_seeds, args.N))
+        save_phase_history[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
+        save_init_state_failed[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
+        save_init_state_success[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
             data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={int(seed_graph)}.npz")
             communication_graph_2 = data["communication_graph"]
@@ -66,7 +66,7 @@ if __name__ == "__main__":
             for seed in range(args.n_seeds):
                 n_subgroups = args.C
                 shifts = (args.C // n_subgroups)
-                group_size_fill = args.N - (n_subgroups-1) * (args.N // n_subgroups)
+                group_size_fill = args.N - (n_subgroups - 1) * (args.N // n_subgroups)
                 # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * i * shifts for i in range(n_subgroups-1)])
                 # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * (n_subgroups-1) * (shifts)])
                 # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * shifts * 0,
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 run_params.append(
                     (args.N, args.C, phases, communication_graph_1, communication_graph_2, args.t_switch, args.T,
                      args.flash_proportion, k, final_seed))
-
+    
     print(f"done setting up the parameters ...")
     print(
         f"Running: N={args.N} | C={args.C} | T={args.T} | flash_proportion={args.flash_proportion} | update_noise={args.update_noise} | k_reduced_range={args.k_reduced_range}")
@@ -106,22 +106,24 @@ if __name__ == "__main__":
             else:
                 save_init_state_success[k][seed] = init_clock_state
     
+    os.makedirs(f"{args.save_dir}/transition_experiment/", exist_ok=True)
+    
     with open(
         f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
         'wb') as f:
         pickle.dump(save_flash_counts, f)
     
-    with open(
-        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
-        'wb') as f:
-        pickle.dump(save_phase_history, f)
-    
-    with open(
-        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
-        'wb') as f:
-        pickle.dump(save_init_state_failed, f)
-    
-    with open(
-        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
-        'wb') as f:
-        pickle.dump(save_init_state_success, f)
+    # with open(
+    #     f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_phase_history.pkl",
+    #     'wb') as f:
+    #     pickle.dump(save_phase_history, f)
+
+    # with open(
+    #     f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_failed.pkl",
+    #     'wb') as f:
+    #     pickle.dump(save_init_state_failed, f)
+    #
+    # with open(
+    #     f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_transition_init_state_sucess.pkl",
+    #     'wb') as f:
+    #     pickle.dump(save_init_state_success, f)

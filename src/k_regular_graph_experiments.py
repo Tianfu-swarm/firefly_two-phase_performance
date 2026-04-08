@@ -110,6 +110,10 @@ if __name__ == "__main__":
     
     save_flash_counts = pd.DataFrame(save_flash_counts)
     
+    os.makedirs(f"{args.save_dir}/"
+                f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
+                exist_ok=True)
+    
     save_flash_counts.to_csv(
         f"{args.save_dir}/"
         f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
