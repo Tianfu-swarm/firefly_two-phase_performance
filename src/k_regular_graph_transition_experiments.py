@@ -29,7 +29,7 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.pkl"
+    flash_counts_path = f"{args.save_dir}/transition_experiment_local/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.pkl"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -106,10 +106,10 @@ if __name__ == "__main__":
             else:
                 save_init_state_success[k][seed] = init_clock_state
     
-    os.makedirs(f"{args.save_dir}/transition_experiment/", exist_ok=True)
+    os.makedirs(f"{args.save_dir}/transition_experiment_local/", exist_ok=True)
     
     with open(
-        f"{args.save_dir}/transition_experiment/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
+        f"{args.save_dir}/transition_experiment_local/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
         'wb') as f:
         pickle.dump(save_flash_counts, f)
     
