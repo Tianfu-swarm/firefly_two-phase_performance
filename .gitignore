@@ -7,3 +7,5 @@ data
 *.csv
 *.npc
 *.png
+cluster
+src/sandbox.py
