@@ -9,3 +9,4 @@ data
 *.png
 cluster
 src/sandbox.py
+results/
