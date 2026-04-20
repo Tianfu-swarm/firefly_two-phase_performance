@@ -43,7 +43,7 @@ if __name__ == "__main__":
         (N, k, seed)
         for N in np.arange(50, 201, 10)
         for k in np.arange(0, N + 1, 5)
-        for seed in np.arange(0, 100, 1)
+        for seed in np.arange(0, 1000, 1)
     ]
 
     os.makedirs(BASE_PATH, exist_ok=True)
@@ -59,10 +59,10 @@ if __name__ == "__main__":
         (N, int(N - missing), seed)
         for N in np.arange(50, 201, 10)
         for missing in [0.05*N, 0.1*N,0.2*N,0.3*N]
-        for seed in np.arange(100, 200, 1)
+        for seed in np.arange(200, 1000, 1)
     ]
     
-    with ProcessPoolExecutor(max_workers=10) as executor:
+    with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = [executor.submit(generate_graph, t) for t in tasks]
 
         for future in as_completed(futures):

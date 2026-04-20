@@ -28,7 +28,7 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = (f"{args.save_dir}/"
+    flash_counts_path = (f"{args.save_dir}/k_regular_graph_local/"
                          f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
                          f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.csv")
     if os.path.isfile(flash_counts_path):
@@ -45,11 +45,11 @@ if __name__ == "__main__":
     save_init_state_success = {}
     avg_num_neighbors = {}
     for k in args.k_range:
-        save_flash_counts[k] = np.zeros(args.n_seeds)
+        save_flash_counts[k] = np.zeros(args.n_seeds * args.graph_seeds)
         avg_num_neighbors[k] = []
-        save_phase_history[k] = np.zeros((args.n_seeds, args.N))
-        save_init_state_failed[k] = np.zeros((args.n_seeds, args.N))
-        save_init_state_success[k] = np.zeros((args.n_seeds, args.N))
+        save_phase_history[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
+        save_init_state_failed[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
+        save_init_state_success[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
             data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
             communication_graph = data["communication_graph"]
@@ -110,12 +110,12 @@ if __name__ == "__main__":
     
     save_flash_counts = pd.DataFrame(save_flash_counts)
     
-    os.makedirs(f"{args.save_dir}/"
+    os.makedirs(f"{args.save_dir}/k_regular_graph_local/"
                 f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
                 exist_ok=True)
     
     save_flash_counts.to_csv(
-        f"{args.save_dir}/"
+        f"{args.save_dir}/k_regular_graph_local/"
         f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.csv",
         index=False)

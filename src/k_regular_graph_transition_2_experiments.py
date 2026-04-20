@@ -24,12 +24,12 @@ if __name__ == "__main__":
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--qr_threshold', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
-    arg_parser.add_argument('--reduce_full_k_by', nargs="+", type=float, default=[0.05, 0.1, 0.2, 0.3])
+    arg_parser.add_argument('--reduce_full_k_by', nargs="+", type=float, default=[0.0, 0.05, 0.1, 0.2, 0.3])
     
     args = arg_parser.parse_args()
     
     # make a quick check if the results already exist and skip if they do
-    flash_counts_path = f"{args.save_dir}/transition_experiment_2_local/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_update_noise={args.update_noise}_k_regular_graph_flash_counts.pkl"
+    flash_counts_path = f"{args.save_dir}/transition_experiment_2_local/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl"
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -38,17 +38,18 @@ if __name__ == "__main__":
     args.k_reduced_range = [int(args.N - args.N * k_reduced) for k_reduced in args.reduce_full_k_by]
     # full communication to start
     communication_graph_1 = np.ones((args.N, args.N))
+    np.fill_diagonal(communication_graph_1, 0)
     
     run_params = []
     save_flash_counts = {}
     save_phase_history = {}
-    save_init_state_failed = {}
-    save_init_state_success = {}
+    # save_init_state_failed = {}
+    # save_init_state_success = {}
     for k in args.k_reduced_range:
         save_flash_counts[k] = {}
         save_phase_history[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
-        save_init_state_failed[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
-        save_init_state_success[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
+        # save_init_state_failed[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
+        # save_init_state_success[k] = np.zeros((args.graph_seeds * args.n_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
             data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={int(seed_graph)}.npz")
             communication_graph_2 = data["communication_graph"]
@@ -57,9 +58,20 @@ if __name__ == "__main__":
                 # n_subgroups = args.C
                 # shifts = (args.C // n_subgroups)
                 # group_size_fill = args.N - (n_subgroups - 1) * (args.N // n_subgroups)
-                #
-                # phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
-                phases = np.ones((args.N,))
+                # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * i * shifts for i in range(n_subgroups-1)])
+                # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * (n_subgroups-1) * (shifts)])
+                # phases = np.concatenate([np.ones(args.N // n_subgroups, dtype=int) * shifts * 0,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 1,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 2,
+                #                          np.ones(args.N // n_subgroups, dtype=int) * shifts * 3,])
+                # phases = np.concatenate([phases, np.ones(group_size_fill, dtype=int) * shifts * 4])
+                # phases = np.ceil(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                if args.N in [50, 60, 70, 80, 100, 120, 130, 140, 150, 160, 170, 200]:
+                    phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                else:
+                    phases = np.ceil(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                # phases = np.concatenate([np.ones(int(args.N / 2), dtype=int) * 0,
+                #                          np.ones(int(args.N / 2), dtype=int) * (args.C/2)])
                 final_seed = int(args.n_seeds * seed_graph + seed)
                 run_params.append(
                     (args.N, args.C, phases, communication_graph_1, communication_graph_2, args.t_switch, args.T,
@@ -83,17 +95,15 @@ if __name__ == "__main__":
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, k, init_clock_state, seed = future.result()
             save_flash_counts[k][seed] = flash_counts
-            if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
-                save_phase_history[k][seed] = phase_history
-                save_init_state_failed[k][seed] = init_clock_state
-            else:
-                save_init_state_success[k][seed] = init_clock_state
+            # if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
+            #     save_phase_history[k][seed] = phase_history
+            #     save_init_state_failed[k][seed] = init_clock_state
+            # else:
+            #     save_init_state_success[k][seed] = init_clock_state
     
     os.makedirs(f"{args.save_dir}/transition_experiment_2_local/", exist_ok=True)
     
-    with open(
-        f"{args.save_dir}/transition_experiment_2_local/N={args.N}_C={args.C}_T={args.T}_flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}_k_regular_graph_transition_flash_counts.pkl",
-        'wb') as f:
+    with open(flash_counts_path, 'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     # with open(
