@@ -56,7 +56,11 @@ if __name__ == "__main__":
             # avg_num_neighbors[r].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
                 rng = np.random.default_rng(seed)
-                phases = rng.integers(0, args.C, size=args.N)
+                # phases = rng.integers(0, args.C, size=args.N)
+                if args.N in [50, 60, 70, 80, 100, 120, 130, 140, 150, 160, 170, 200]:
+                    phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                else:
+                    phases = np.ceil(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
                 
                 run_params.append(
                     (args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, r,

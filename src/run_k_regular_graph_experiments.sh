@@ -10,6 +10,7 @@ for N in "${Ns[@]}"; do
   for C in "${Cs[@]}"; do
     for update_noise in "${update_noises[@]}"; do
       python k_regular_graph_2_experiments.py \
+      --save_dir "/home/till/PycharmProjects/firefly_two-phase_performance/results" \
       --n_seeds $n_seeds \
       --N $N \
       --C $C \
