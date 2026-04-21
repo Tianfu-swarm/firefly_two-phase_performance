@@ -91,20 +91,32 @@ fig, axs = plt.subplots(2, 4, figsize=(12, 6))
 heatmaps = []
 
 # --- Load all heatmaps first ---
-heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.0.csv', header=None).values)
-heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.05.csv', header=None).values)
-heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.1.csv', header=None).values)
-heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.2.csv', header=None).values)
-
+try:
+    heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.0.csv', header=None).values)
+    heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.05.csv', header=None).values)
+    heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.1.csv', header=None).values)
+    heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.2.csv', header=None).values)
+except FileNotFoundError:
+    pass
 # try:
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.0_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.05_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.1_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.2_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
+# TRUE STUFF
+# heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+# heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
+# heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
+# heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
+# TMP /Users/tillaust/Downloads/2026_firefly_sync_tianfu_till-2.pdf
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Users/tillaust/Downloads/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
 # except FileNotFoundError:
 #     pass
 
