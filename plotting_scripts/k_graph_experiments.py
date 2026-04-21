@@ -66,7 +66,13 @@ else:
                 #     if not (np.max(data[int(N - (N * 0.2))][run]) == N):
                 #         save_flash_counts_02[N][C] += 1
                 for run in data[int(N)].keys():
+                    # if np.max(data[int(N)][run])
                     save_flash_counts_00[N][C] += np.max(data[int(N)][run]) / N
+                    if C == 10 and N == 100:
+                        counts, bins = np.histogram(data[int(N)][run])
+                        print("Counts:", counts)
+                        print("Bins:", bins)
+                        exit(12)
                     print(f"{run}: {np.max(data[int(N)][run])} N={N}, C={C}, T={T}")
                     save_flash_counts_005[N][C] += np.max(data[int(N - (N * 0.05))][run]) / N
                     save_flash_counts_01[N][C] += np.max(data[int(N - (N * 0.1))][run]) / N

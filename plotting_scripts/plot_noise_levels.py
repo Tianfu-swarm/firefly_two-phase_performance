@@ -207,9 +207,9 @@ cbar1.set_label("Asynchronus runs")  # optional label
 
 # cbar2 = fig.colorbar(ims2[0], ax=axs[1, :], fraction=0.025, pad=0.04)
 # cbar2.set_label("Asynchronous runs (set 2)")
-# fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
-#
-# cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
-# cbar2.set_label("Asynchronus runs")  # optional label
+fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
+
+cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
+cbar2.set_label("Asynchronus runs")  # optional label
 
 plt.show()
