@@ -96,13 +96,17 @@ heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_
 heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.1.csv', header=None).values)
 heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_com_range/heatmap_noise=0.2.csv', header=None).values)
 
-try:
-    heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.0_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-    heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.05_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-    heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.1_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-    heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.2_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-except FileNotFoundError:
-    pass
+# try:
+    # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.0_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+    # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.05_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+    # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.1_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+    # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.2_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 100)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 100)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 100)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 100)
+# except FileNotFoundError:
+#     pass
 
 # # --- Global color scaling ---
 # heatmaps = [np.where(h <= 0, 1e-6, h) for h in heatmaps]
@@ -143,15 +147,20 @@ heatmaps_2 = heatmaps[4:8]
 
 # --- Avoid zeros for LogNorm ---
 heatmaps_1 = [np.where(h <= 0, 1e-3, h) for h in heatmaps_1]
-heatmaps_2 = [np.where(h <= 0, 1e-6, h) for h in heatmaps_2]
+heatmaps_2 = [np.where(h <= 0, 1e-3, h) for h in heatmaps_2]
 # --- Separate normalization ---
-norm1 = LogNorm(vmin=min(h.min() for h in heatmaps_1),
-                vmax=max(h.max() for h in heatmaps_1))
-
+# norm1 = LogNorm(vmin=min(h.min() for h in heatmaps_1),
+#                 vmax=max(h.max() for h in heatmaps_1))
+#
 # norm2 = LogNorm(vmin=min(h.min() for h in heatmaps_2),
 #                 vmax=max(h.max() for h in heatmaps_2))
-vmin = 1e-3  # min(h.min() for h in heatmaps)
-vmax = 1  # max(h.max() for h in heatmaps)
+norm1 = LogNorm(vmin=1e-3,
+                vmax=1)
+
+norm2 = LogNorm(vmin=1e-3,
+                vmax=1)
+# vmin = 1e-3  # min(h.min() for h in heatmaps)
+# vmax = 1  # max(h.max() for h in heatmaps)
 
 ims1, ims2 = [], []
 
@@ -162,7 +171,7 @@ for i in range(4):
 
 # --- Plot second row ---
 for i in range(4):
-    im = axs[1, i].imshow(heatmaps_2[i], cmap="plasma", vmin=vmin, vmax=vmax)
+    im = axs[1, i].imshow(heatmaps_2[i], cmap="plasma", norm=norm2)  #  vmin=vmin, vmax=vmax
     ims2.append(im)
 
 # --- Axis formatting ---

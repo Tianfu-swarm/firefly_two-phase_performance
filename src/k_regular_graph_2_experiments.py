@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # make a quick check if the results already exist and skip if they do
     flash_counts_path = (f"{args.save_dir}/k_regular_graph_local/"
                          f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.csv")
+                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.pkl")
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
@@ -40,40 +40,21 @@ if __name__ == "__main__":
     
     run_params = []
     save_flash_counts = {}
-    save_phase_history = {}
-    save_init_state_failed = {}
-    save_init_state_success = {}
-    avg_num_neighbors = {}
+    # save_phase_history = {}
+    # save_init_state_failed = {}
+    # save_init_state_success = {}
+    # avg_num_neighbors = {}
     for k in args.k_range:
-        save_flash_counts[k] = np.zeros(args.n_seeds * args.graph_seeds)
-        avg_num_neighbors[k] = []
-        save_phase_history[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
-        save_init_state_failed[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
-        save_init_state_success[k] = np.zeros((args.n_seeds * args.graph_seeds, args.N))
+        save_flash_counts[k] = {}
+        # avg_num_neighbors[r] = []
+        # save_phase_history[r] = {}
+        # save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
+        # save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
             data = np.load(f"{args.save_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
             communication_graph = data["communication_graph"]
-            # if k == args.N:
-            #     communication_graph = np.ones((args.N, args.N))
-            #     np.fill_diagonal(communication_graph, 0)
-            # else:
-            #     random.seed(seed_graph)
-            #     np.random.seed(seed_graph)
-            #     ig.set_random_number_generator(random)
-            #     try:
-            #         if k > (args.N / 2):  # we can use the complement to be quicker
-            #             G = ig.Graph.K_Regular(args.N, args.N - 1 - k)
-            #             communication_graph = np.ones((args.N, args.N))
-            #             np.fill_diagonal(communication_graph, 0)
-            #             communication_graph -= np.array(G.get_adjacency().data)
-            #         else:
-            #             G = ig.Graph.K_Regular(args.N, k)
-            #             communication_graph = np.array(G.get_adjacency().data)
-            #     except:
-            #         print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
-            #         continue
-            
-            avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
+    
+            # avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
                 rng = np.random.default_rng(seed)
                 phases = rng.integers(0, args.C, size=args.N)
@@ -101,12 +82,12 @@ if __name__ == "__main__":
         
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, k, init_clock_state, seed = future.result()
-            save_flash_counts[k][seed] = np.max(flash_counts)
-            if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
-                save_phase_history[k][seed] = phase_history
-                save_init_state_failed[k][seed] = init_clock_state
-            else:
-                save_init_state_success[k][seed] = init_clock_state
+            save_flash_counts[k][seed] = flash_counts
+            # if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
+            #     save_phase_history[k][seed] = phase_history
+            #     save_init_state_failed[k][seed] = init_clock_state
+            # else:
+            #     save_init_state_success[k][seed] = init_clock_state
     
     save_flash_counts = pd.DataFrame(save_flash_counts)
     
@@ -114,12 +95,9 @@ if __name__ == "__main__":
                 f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
                 exist_ok=True)
     
-    save_flash_counts.to_csv(
-        f"{args.save_dir}/k_regular_graph_local/"
-        f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-        f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.csv",
-        index=False)
-    
+    with open(flash_counts_path, 'wb') as f:
+        pickle.dump(save_flash_counts, f)
+        
     # with open(
     #     f"{args.save_dir}/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_phase_history.pkl",
     #     'wb') as f:

@@ -96,11 +96,7 @@ if __name__ == "__main__":
                 f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
                 exist_ok=True)
     
-    with open(
-        f"{args.save_dir}/r_com_range_2_local/"
-        f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-        f"N={args.N}_C={args.C}_T={args.T}_r_com_range_flash_counts.pkl",
-        'wb') as f:
+    with open(flash_counts_path, 'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     # with open(
