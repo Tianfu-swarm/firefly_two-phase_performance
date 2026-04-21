@@ -17,7 +17,7 @@ for N in "${Ns[@]}"; do
       --update_noise $update_noise \
       --T $T \
       --k_range "$N" \
-      # --save_dir "/home/till/PycharmProjects/firefly_two-phase_performance/results" \
+      --save_dir "/home/till/PycharmProjects/firefly_two-phase_performance/results"
     done
   done
 done
