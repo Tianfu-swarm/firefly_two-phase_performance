@@ -4,7 +4,7 @@ import os
 import igraph as ig
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-BASE_PATH = '/Volumes/Data/other/2026_firefly_synchronization/pre_computed_graphs'
+BASE_PATH = '/home/till/PycharmProjects/firefly_two-phase_performance/results/pre_computed_graphs'
 
 
 def generate_graph(args):
