@@ -13,7 +13,7 @@ pd.set_option('display.max_rows', None)
 N = 100
 clock_length = 34
 T=10000
-qr_threshold = 0.4
+qr_threshold = 0.5
 flash_proportion = 0.5
 noise_level = 0.0  # Set None to deactivate:  0.05
 

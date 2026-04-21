@@ -57,13 +57,14 @@ if __name__ == "__main__":
             communication_graph = data["communication_graph"]
     
             # avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
-            for seed in range(args.n_seeds):
-                rng = np.random.default_rng(seed)
-                phases = rng.integers(0, args.C, size=args.N)
-                final_seed = int(args.n_seeds * seed_graph + seed)
-                run_params.append(
-                    (args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, k,
-                     final_seed))
+            # for seed in range(args.n_seeds):
+            # rng = np.random.default_rng(seed)
+            rng = np.random.default_rng(seed_graph)
+            phases = rng.integers(0, args.C, size=args.N)
+            final_seed = seed_graph  # int(args.n_seeds * seed_graph + seed)
+            run_params.append(
+                (args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, k,
+                 final_seed))
     
     # avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
     # avg_num_neighbors_df.to_csv(
