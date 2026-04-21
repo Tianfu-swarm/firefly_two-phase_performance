@@ -36,7 +36,9 @@ if __name__ == "__main__":
         exit(0)
     
     # ensure k values are valid (k must be less than N for k-regular graph)
-    args.k_range = [k for k in args.k_range if k <= args.N]
+    # args.k_range = [k for k in args.k_range if k <= args.N]
+    args.k_range = [int(args.N - (args.N * n)) for n in [0.0, 0.05, 0.1, 0.2]]
+    
     
     run_params = []
     save_flash_counts = {}
