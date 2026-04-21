@@ -19,25 +19,13 @@ Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
 Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
 
 experiment_tag = "_local"
-heatmap_path_00 = (f"/Volumes"
-                f"/Data"
-                f"/other"
-                f"/2026_firefly_synchronization"
+heatmap_path_00 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
                 f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}.npz")
-heatmap_path_005 = (f"/Volumes"
-                f"/Data"
-                f"/other"
-                f"/2026_firefly_synchronization"
+heatmap_path_005 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
                 f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.05}.npz")
-heatmap_path_01 = (f"/Volumes"
-                f"/Data"
-                f"/other"
-                f"/2026_firefly_synchronization"
+heatmap_path_01 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
                 f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.1}.npz")
-heatmap_path_02 = (f"/Volumes"
-                f"/Data"
-                f"/other"
-                f"/2026_firefly_synchronization"
+heatmap_path_02 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
                 f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.2}.npz")
 
 if os.path.isfile(heatmap_path_00):
@@ -63,42 +51,19 @@ else:
             save_flash_counts_01[N][C] = 0.0
             save_flash_counts_02[N][C] = 0.0
             try:
-                data_00 = pd.read_pickle('/Volumes/'
-                                   'Data/'
-                                   'other/'
-                                   '2026_firefly_synchronization/'
+                data = pd.read_pickle('~/PycharmProjects/firefly_two-phase_performance/results/'
                                    f'k_regular_graph{experiment_tag}/'
                                    f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
                                    f'N={N}_C={C}_T=10000_k_regular_graph_flash_counts.pkl')
-                data_005 = pd.read_pickle('/Volumes/'
-                                      'Data/'
-                                      'other/'
-                                      '2026_firefly_synchronization/'
-                                      f'k_regular_graph{experiment_tag}/'
-                                      f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.05}/'
-                                      f'N={N}_C={C}_T=10000_k_regular_graph_flash_counts.pkl')
-                data_01 = pd.read_pickle('/Volumes/'
-                                      'Data/'
-                                      'other/'
-                                      '2026_firefly_synchronization/'
-                                      f'k_regular_graph{experiment_tag}/'
-                                      f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.1}/'
-                                      f'N={N}_C={C}_T=10000_k_regular_graph_flash_counts.pkl')
-                data_02 = pd.read_pickle('/Volumes/'
-                                      'Data/'
-                                      'other/'
-                                      '2026_firefly_synchronization/'
-                                      f'k_regular_graph{experiment_tag}/'
-                                      f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.2}/'
-                                      f'N={N}_C={C}_T=10000_k_regular_graph_flash_counts.pkl')
-                for run in data_00[int(N)].keys():
-                    if not (np.max(data_00[int(N)][run]) == N):
+                
+                for run in data[int(N)].keys():
+                    if not (np.max(data[int(N)][run]) == N):
                         save_flash_counts_00[N][C] += 1
-                    if not (np.max(data_005[int(N)][run]) == N):
+                    if not (np.max(data[int(N - (N * 0.05))][run]) == N):
                         save_flash_counts_005[N][C] += 1
-                    if not (np.max(data_01[int(N)][run]) == N):
+                    if not (np.max(data[int(N - (N * 0.1))][run]) == N):
                         save_flash_counts_01[N][C] += 1
-                    if not (np.max(data_02[int(N)][run]) == N):
+                    if not (np.max(data[int(N - (N * 0.2))][run]) == N):
                         save_flash_counts_02[N][C] += 1
                 print(f"Done loading {N}/{C}")
                 
