@@ -20,13 +20,13 @@ Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
 
 experiment_tag = "_local"
 heatmap_path_00 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
-                f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}.npz")
+                f"compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}.npz")
 heatmap_path_005 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
-                f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.05}.npz")
+                f"compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.05}.npz")
 heatmap_path_01 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
-                f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.1}.npz")
+                f"compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.1}.npz")
 heatmap_path_02 = (f"~/PycharmProjects/firefly_two-phase_performance/results/"
-                f"/compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.2}.npz")
+                f"compressed_results_k_graph_experiment{experiment_tag}_N={np.min(Ns)}_{np.max(Ns)}_C={np.min(Cs)}_{np.max(Cs)}_T={T}_flash_proportion=0.5_qr_threshold=0.5_update_noise={0.2}.npz")
 
 if os.path.isfile(heatmap_path_00):
     print(f"{heatmap_path_00} already exists. loading...")
