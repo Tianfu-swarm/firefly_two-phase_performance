@@ -101,10 +101,10 @@ heatmaps.append(pd.read_csv('/Volumes/Data/other/2026_firefly_synchronization/r_
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.05_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.1_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
     # heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_transition_experiment_2_local_N=50_200_C=10_70_heatmap_param_0.2_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 100)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 100)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 100)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 100)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
 # except FileNotFoundError:
 #     pass
 
@@ -159,8 +159,8 @@ norm1 = LogNorm(vmin=1e-3,
 
 norm2 = LogNorm(vmin=1e-3,
                 vmax=1)
-# vmin = 1e-3  # min(h.min() for h in heatmaps)
-# vmax = 1  # max(h.max() for h in heatmaps)
+vmin = 1e-3  # min(h.min() for h in heatmaps)
+vmax = 1  # max(h.max() for h in heatmaps)
 
 ims1, ims2 = [], []
 
@@ -171,16 +171,16 @@ for i in range(4):
 
 # --- Plot second row ---
 for i in range(4):
-    im = axs[1, i].imshow(heatmaps_2[i], cmap="plasma", norm=norm2)  #  vmin=vmin, vmax=vmax
+    im = axs[1, i].imshow(heatmaps_2[i], cmap="plasma", vmin=vmin, vmax=vmax)  # norm=norm1
     ims2.append(im)
 
 # --- Axis formatting ---
 for ax in axs.flat:
-    # ax.set_xticks(np.arange(len(Ns)))
-    # ax.set_xticklabels(Ns)
-    # ax.set_yticks(np.arange(len(Cs)))
-    # ax.set_yticklabels(Cs)
-    ax.set_axis_off()
+    ax.set_xticks(np.arange(len(Ns)))
+    ax.set_xticklabels(Ns)
+    ax.set_yticks(np.arange(len(Cs)))
+    ax.set_yticklabels(Cs)
+    # ax.set_axis_off()
     ax.invert_yaxis()
 
 plt.tight_layout()
@@ -195,9 +195,9 @@ cbar1.set_label("Asynchronus runs")  # optional label
 
 # cbar2 = fig.colorbar(ims2[0], ax=axs[1, :], fraction=0.025, pad=0.04)
 # cbar2.set_label("Asynchronous runs (set 2)")
-fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
-
-cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
-cbar2.set_label("Asynchronus runs")  # optional label
+# fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
+#
+# cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
+# cbar2.set_label("Asynchronus runs")  # optional label
 
 plt.show()

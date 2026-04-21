@@ -56,15 +56,20 @@ else:
                                    f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
                                    f'N={N}_C={C}_T=10000_k_regular_graph_flash_counts.pkl')
                 
+                # for run in data[int(N)].keys():
+                #     if not (np.max(data[int(N)][run]) == N):
+                #         save_flash_counts_00[N][C] += 1
+                #     if not (np.max(data[int(N - (N * 0.05))][run]) == N):
+                #         save_flash_counts_005[N][C] += 1
+                #     if not (np.max(data[int(N - (N * 0.1))][run]) == N):
+                #         save_flash_counts_01[N][C] += 1
+                #     if not (np.max(data[int(N - (N * 0.2))][run]) == N):
+                #         save_flash_counts_02[N][C] += 1
                 for run in data[int(N)].keys():
-                    if not (np.max(data[int(N)][run]) == N):
-                        save_flash_counts_00[N][C] += 1
-                    if not (np.max(data[int(N - (N * 0.05))][run]) == N):
-                        save_flash_counts_005[N][C] += 1
-                    if not (np.max(data[int(N - (N * 0.1))][run]) == N):
-                        save_flash_counts_01[N][C] += 1
-                    if not (np.max(data[int(N - (N * 0.2))][run]) == N):
-                        save_flash_counts_02[N][C] += 1
+                    save_flash_counts_00[N][C] += np.max(data[int(N)][run]) / N
+                    save_flash_counts_005[N][C] += np.max(data[int(N - (N * 0.05))][run]) / N
+                    save_flash_counts_01[N][C] += np.max(data[int(N - (N * 0.1))][run]) / N
+                    save_flash_counts_02[N][C] += np.max(data[int(N - (N * 0.2))][run]) / N
                 print(f"Done loading {N}/{C}")
                 
             except FileNotFoundError:
@@ -95,37 +100,37 @@ else:
 print(heatmap_00)
 
 # Define colors (normalized)
-start = np.array([154, 160, 167]) / 255  # grey
-end = np.array([0, 169, 224]) / 255  # blue
-
-# Create colormap
-cmap = LinearSegmentedColormap.from_list(
-    "grey_to_blue",
-    [start, end]
-)
-
-for heatmap, param in zip([heatmap_00, heatmap_005, heatmap_01, heatmap_02], [0.0, 0.05, 0.1, 0.2]):
-    fig, ax = plt.subplots(figsize=(8, 5))
-    im = ax.imshow(
-        heatmap / 100,  # normalize by total runs per setting (1000 seeds)
-        origin="lower",
-        aspect="auto",
-        cmap="plasma",
-        vmin=0,
-        vmax=1,
-        # norm=LogNorm(vmin=1e-4, vmax=3)  # avoid log(0)
-    )
-    
-    ax.set_xticks(np.arange(len(Ns)))
-    ax.set_xticklabels(Ns)
-    
-    ax.set_yticks(np.arange(len(Cs)))
-    ax.set_yticklabels(Cs)
-    
-    ax.set_xlabel(f"N | {param * 100} % noise on the update rule")
-    ax.set_ylabel("C")
-    
-    fig.colorbar(im, ax=ax, label="Asynchronous runs / Total runs")
-    
-    plt.tight_layout()
-plt.show()
+# start = np.array([154, 160, 167]) / 255  # grey
+# end = np.array([0, 169, 224]) / 255  # blue
+#
+# # Create colormap
+# cmap = LinearSegmentedColormap.from_list(
+#     "grey_to_blue",
+#     [start, end]
+# )
+#
+# for heatmap, param in zip([heatmap_00, heatmap_005, heatmap_01, heatmap_02], [0.0, 0.05, 0.1, 0.2]):
+#     fig, ax = plt.subplots(figsize=(8, 5))
+#     im = ax.imshow(
+#         heatmap / 100,  # normalize by total runs per setting (1000 seeds)
+#         origin="lower",
+#         aspect="auto",
+#         cmap="plasma",
+#         vmin=0,
+#         vmax=1,
+#         # norm=LogNorm(vmin=1e-4, vmax=3)  # avoid log(0)
+#     )
+#
+#     ax.set_xticks(np.arange(len(Ns)))
+#     ax.set_xticklabels(Ns)
+#
+#     ax.set_yticks(np.arange(len(Cs)))
+#     ax.set_yticklabels(Cs)
+#
+#     ax.set_xlabel(f"N | {param * 100} % noise on the update rule")
+#     ax.set_ylabel("C")
+#
+#     fig.colorbar(im, ax=ax, label="Asynchronous runs / Total runs")
+#
+#     plt.tight_layout()
+# plt.show()
