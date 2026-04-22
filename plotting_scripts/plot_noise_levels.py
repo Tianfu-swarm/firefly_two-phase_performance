@@ -112,7 +112,7 @@ except FileNotFoundError:
 heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_async_lower_phase_runs_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0.npz")["arr"] / 1000)
 heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_async_lower_phase_runs_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.05.npz")["arr"] / 1000)
 heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_async_lower_phase_runs_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.1.npz")["arr"] / 1000)
-heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_async_lower_phase_runs_results_k_graph_experiment_local_N=50_200_C=10_70_T=10000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.2.npz")["arr"] / 1000)
+heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compressed_async_lower_phase_runs_results_k_graph_experiment_local_N=50_200_C=10_70_T=5000_flash_proportion=0.5_qr_threshold=0.5_update_noise=0.5.npz")["arr"] / 1000)
 # except FileNotFoundError:
 #     pass
 
@@ -203,9 +203,9 @@ cbar1.set_label("Asynchronus runs")  # optional label
 
 # cbar2 = fig.colorbar(ims2[0], ax=axs[1, :], fraction=0.025, pad=0.04)
 # cbar2.set_label("Asynchronous runs (set 2)")
-fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
-
-cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
-cbar2.set_label("Asynchronus runs")  # optional label
+# fig_cb, ax_cb = plt.subplots(figsize=(2, 6))
+#
+# cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
+# cbar2.set_label("Asynchronus runs")  # optional label
 
 plt.show()

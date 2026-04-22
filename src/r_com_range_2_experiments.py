@@ -18,7 +18,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('--N', type=int, default=100)  # number of fireflies
     arg_parser.add_argument('--C', type=int, default=10)  # clock length (number of discrete phases)
     arg_parser.add_argument('--T', type=int, default=1000)  # number of time steps to simulate
-    arg_parser.add_argument('--t_switch', type=int, default=1000)
+    arg_parser.add_argument('--t_switch', type=int, default=1000)  # TODO never used
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--qr_threshold', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
@@ -77,8 +77,7 @@ if __name__ == "__main__":
         
         futures = [
             executor.submit(simulate_fireflies_r_communication_range, N, clock_length, phases, communication_graph,
-                            args.T, args.t_switch,
-                            flash_proportion, qr_threshold, r, seed, args.update_noise)
+                            args.T, flash_proportion, qr_threshold, r, seed, args.update_noise)
             for (N, clock_length, phases, communication_graph, args.T, flash_proportion, qr_threshold, r, seed) in
             run_params
         ]

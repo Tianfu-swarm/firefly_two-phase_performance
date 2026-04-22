@@ -146,7 +146,6 @@ def simulate_fireflies_r_communication_range(N=150,
                                              phases=np.zeros((150, 1)),
                                              communication_graph=np.zeros((150, 150)),
                                              T=1000,
-                                             t_switch=100000,
                                              flash_proportion=0.5,
                                              qr_threshold=0.5,
                                              r=-1,
@@ -197,7 +196,7 @@ def simulate_fireflies_r_communication_range(N=150,
         majority_flashing = (neighbor_flash_count > neighbor_total * qr_threshold)  # (len(idxs), 1)
         
         # update phase -- we do not need to modulo bc it only affects fireflies in the middle of their clock cycle
-        if update_noise is None or t < t_switch:
+        if update_noise is None:
             phases[idxs] += majority_flashing.flatten().astype(int)
         else:
             # noisy update: with prob update_noise do the opposite of the normal update, with prob 1-update_noise
