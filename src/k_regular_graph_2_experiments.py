@@ -30,14 +30,14 @@ if __name__ == "__main__":
     # make a quick check if the results already exist and skip if they do
     flash_counts_path = (f"{args.save_dir}/k_regular_graph_local/"
                          f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts.pkl")
+                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts_second_it.pkl")
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
     
     # ensure k values are valid (k must be less than N for k-regular graph)
     # args.k_range = [k for k in args.k_range if k <= args.N]
-    args.k_range = [int(args.N - (args.N * n)) for n in [0.5]]  # , 0.05, 0.1, 0.2
+    args.k_range = [int(args.N - (args.N * n)) for n in [0.4, 0.6, 0.7, 0.8, 0.9]]  # , 0.05, 0.1, 0.2
     
     
     run_params = []

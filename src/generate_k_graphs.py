@@ -58,8 +58,8 @@ if __name__ == "__main__":
     tasks = [
         (N, int(N - missing), seed)
         for N in np.arange(50, 201, 10)
-        for missing in [0.05*N, 0.1*N,0.2*N,0.3*N]
-        for seed in np.arange(200, 1000, 1)
+        for missing in [0.05*N, 0.1*N,0.2*N,0.3*N, 0.4*N, 0.6*N, 0.7*N, 0.8*N, 0.9*N]
+        for seed in np.arange(0, 1000, 1)
     ]
     
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
