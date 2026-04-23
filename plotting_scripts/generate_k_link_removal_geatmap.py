@@ -14,10 +14,10 @@ from matplotlib.colors import LinearSegmentedColormap
 # pd.set_option('display.max_columns', None)
 # pd.set_option('display.max_rows', None)
 
-param = 0.4
+param = 0.5
 # base_dir = "/Volumes/Data/other/2026_firefly_synchronization"
 base_dir = "/home/till/PycharmProjects/firefly_two-phase_performance/results/"
-T = 5000
+T = 10000
 Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
 Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
 
@@ -44,7 +44,7 @@ for N in Ns:
             data = pd.read_pickle(f'{base_dir}/'
                                   f'k_regular_graph{experiment_tag}/'
                                   f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
-                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_second_it.pkl')
+                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_4_it.pkl')
             
             # check async runs
             for run in data[int(N - (N * param))].keys():
