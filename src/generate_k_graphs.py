@@ -4,8 +4,8 @@ import os
 import igraph as ig
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-BASE_PATH = '/home/till/PycharmProjects/firefly_two-phase_performance/results/pre_computed_graphs'
-
+# BASE_PATH = '/home/till/PycharmProjects/firefly_two-phase_performance/results/pre_computed_graphs'
+BASE_PATH = '/Volumes/Data/other/2026_firefly_synchronization/pre_computed_graphs'
 
 def generate_graph(args):
     N, k, seed = args
@@ -39,26 +39,26 @@ def generate_graph(args):
 
 if __name__ == "__main__":
     # generate normal graphs
-    tasks = [
-        (N, k, seed)
-        for N in np.arange(50, 201, 10)
-        for k in np.arange(0, N + 1, 5)
-        for seed in np.arange(0, 1000, 1)
-    ]
-
-    os.makedirs(BASE_PATH, exist_ok=True)
-
-    with ProcessPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(generate_graph, t) for t in tasks]
-
-        for future in as_completed(futures):
-            print(future.result())
+    # tasks = [
+    #     (N, k, seed)
+    #     for N in np.arange(50, 201, 10)
+    #     for k in np.arange(0, N + 1, 5)
+    #     for seed in np.arange(0, 1000, 1)
+    # ]
+    #
+    # os.makedirs(BASE_PATH, exist_ok=True)
+    #
+    # with ProcessPoolExecutor(max_workers=10) as executor:
+    #     futures = [executor.submit(generate_graph, t) for t in tasks]
+    #
+    #     for future in as_completed(futures):
+    #         print(future.result())
     
     # generate for the reduced case
     tasks = [
         (N, int(N - missing), seed)
         for N in np.arange(50, 201, 10)
-        for missing in [0.05*N, 0.1*N,0.2*N,0.3*N, 0.4*N, 0.6*N, 0.7*N, 0.8*N, 0.9*N]
+        for missing in [0.9*N]  # 0.05*N, 0.1*N,0.2*N,0.3*N, 0.4*N, 0.6*N, 0.7*N, 0.8*N,
         for seed in np.arange(0, 1000, 1)
     ]
     

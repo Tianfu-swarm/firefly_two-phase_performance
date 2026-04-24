@@ -42,14 +42,14 @@ if __name__ == "__main__":
     
     run_params = []
     save_flash_counts = {}
-    # save_phase_history = {}
+    save_phase_history = {}
     # save_init_state_failed = {}
     # save_init_state_success = {}
     # avg_num_neighbors = {}
     for k in args.k_range:
         save_flash_counts[k] = {}
         # avg_num_neighbors[r] = []
-        # save_phase_history[r] = {}
+        save_phase_history[k] = {}
         # save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
         # save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(args.graph_seeds):
@@ -86,6 +86,7 @@ if __name__ == "__main__":
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, k, init_clock_state, seed = future.result()
             save_flash_counts[k][seed] = flash_counts
+            # save_phase_history[k][seed] = phase_history
             # if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
             #     save_phase_history[k][seed] = phase_history
             #     save_init_state_failed[k][seed] = init_clock_state
@@ -102,7 +103,7 @@ if __name__ == "__main__":
         pickle.dump(save_flash_counts, f)
         
     # with open(
-    #     f"{args.save_dir}/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_phase_history.pkl",
+    #     f"{args.save_dir}/k_regular_graph_local/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_phase_history_1_it.pkl",
     #     'wb') as f:
     #     pickle.dump(save_phase_history, f)
     

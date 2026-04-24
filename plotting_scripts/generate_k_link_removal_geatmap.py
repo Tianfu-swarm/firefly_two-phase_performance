@@ -6,6 +6,7 @@ import platform
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.colors import LogNorm
 import pickle
 from matplotlib.colors import LinearSegmentedColormap
@@ -14,10 +15,10 @@ from matplotlib.colors import LinearSegmentedColormap
 # pd.set_option('display.max_columns', None)
 # pd.set_option('display.max_rows', None)
 
-param = 0.5
-# base_dir = "/Volumes/Data/other/2026_firefly_synchronization"
-base_dir = "/home/till/PycharmProjects/firefly_two-phase_performance/results/"
-T = 10000
+param = 0.9
+base_dir = "/Volumes/Data/other/2026_firefly_synchronization"
+# base_dir = "/home/till/PycharmProjects/firefly_two-phase_performance/results/"
+T = 1000
 Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
 Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
 
@@ -44,7 +45,7 @@ for N in Ns:
             data = pd.read_pickle(f'{base_dir}/'
                                   f'k_regular_graph{experiment_tag}/'
                                   f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
-                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_4_it.pkl')
+                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_1_it.pkl')
             
             # check async runs
             for run in data[int(N - (N * param))].keys():
@@ -88,4 +89,6 @@ np.savez_compressed(heatmap_path_async, arr=heatmap_async)
 
 np.savez_compressed(heatmap_path_async_lower_phase, arr=heatmap_async_lower_phase)
 
-print(heatmap)
+sns.heatmap(heatmap_async_lower_phase, annot=True, cmap="coolwarm")
+
+plt.show()
