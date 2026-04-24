@@ -64,7 +64,7 @@ def simulate_fireflies_k_regular_graph(N=150,
             noise = rng.random(len(idxs)) <= update_noise
             phases[idxs[noise != majority_flashing]] += 1
     
-    return flash_counts, phase_history[-1, :], groups_history, k, init_clock_state, seed
+    return flash_counts, phase_history, groups_history, k, init_clock_state, seed
 
 
 def simulate_fireflies_k_regular_graph_transition(N=150,
