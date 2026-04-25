@@ -53,10 +53,10 @@ def simulate_fireflies_k_regular_graph(N=150,
         
         neighbor_flash_count = communication_graph[idxs] @ flashing  # (len(idxs), 1)
         neighbor_total = communication_graph[idxs].sum(axis=1)  # total neighbors
-        majority_flashing = (neighbor_flash_count >= neighbor_total * qr_threshold)  # (len(idxs), 1)
+        majority_flashing = (neighbor_flash_count > neighbor_total * qr_threshold)  # (len(idxs), 1)
         
         # update phase -- we do not need to modulo bc it only affects fireflies in the middle of their clock cycle
-        if update_noise is None:
+        if update_noise is None or update_noise == 0.0:
             phases[idxs] += majority_flashing.flatten().astype(int)
         else:
             # noisy update: with prob update_noise do the opposite of the normal update, with prob 1-update_noise
