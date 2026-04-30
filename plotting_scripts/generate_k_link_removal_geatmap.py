@@ -10,15 +10,13 @@ import seaborn as sns
 from matplotlib.colors import LogNorm
 import pickle
 from matplotlib.colors import LinearSegmentedColormap
-
-# matplotlib.use('QtAgg')
 # pd.set_option('display.max_columns', None)
 # pd.set_option('display.max_rows', None)
 
-param = 0.9
+param = 7
 base_dir = "/Volumes/Data/other/2026_firefly_synchronization"
 # base_dir = "/home/till/PycharmProjects/firefly_two-phase_performance/results/"
-T = 1000
+T = 10000
 Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
 Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
 
@@ -45,21 +43,25 @@ for N in Ns:
             data = pd.read_pickle(f'{base_dir}/'
                                   f'k_regular_graph{experiment_tag}/'
                                   f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
-                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_1_it.pkl')
+                                  f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_8_it.pkl')
             
             # check async runs
-            for run in data[int(N - (N * param))].keys():
-                if not (np.max(data[int(N - (N * param))][run]) == N):
+            if param > 1.0:
+                indicator = param
+            else:
+                indicator = int(N - (N * param))
+            for run in data[indicator].keys():
+                if not (np.max(data[indicator][run]) == N):
                     save_flash_counts_async[N][C] += 1
             
             # lower phase
-            for run in data[int(N - (N * param))].keys():
-                if np.max(data[int(N - (N * param))][run]) <= N * 0.85:
+            for run in data[indicator].keys():
+                if np.max(data[indicator][run]) <= N * 0.85:
                     save_flash_counts_async_lower_phase[N][C] += 1
             
             # gios approach
-            for run in data[int(N - (N * param))].keys():
-                save_flash_counts[N][C] += np.max(data[int(N - (N * param))][run]) / N
+            for run in data[indicator].keys():
+                save_flash_counts[N][C] += np.max(data[indicator][run]) / N
             print(f"Done loading {N}/{C}")
         
         except FileNotFoundError:
@@ -67,6 +69,15 @@ for N in Ns:
             save_flash_counts_async[N][C] = np.nan
             save_flash_counts_async_lower_phase[N][C] = np.nan
             print(f"File {N}/{C} not found.")
+        except:
+            save_flash_counts[N][C] = np.nan
+            save_flash_counts_async[N][C] = np.nan
+            save_flash_counts_async_lower_phase[N][C] = np.nan
+            print(f"path not found: \n"
+            f'{base_dir}/'
+            f'k_regular_graph{experiment_tag}/'
+            f'flash_proportion=0.5_qr_threshold=0.5_update_noise={0.0}/'
+            f'N={N}_C={C}_T={T}_k_regular_graph_flash_counts_8_it.pkl')
 
 heatmap = np.zeros((len(Cs), len(Ns)))
 
@@ -89,6 +100,14 @@ np.savez_compressed(heatmap_path_async, arr=heatmap_async)
 
 np.savez_compressed(heatmap_path_async_lower_phase, arr=heatmap_async_lower_phase)
 
-sns.heatmap(heatmap_async_lower_phase, annot=True, cmap="coolwarm")
+try:
+    matplotlib.use('QtAgg')
+    norm1 = LogNorm(vmin=1e-3,
+                    vmax=1)
+    fig, ax = plt.subplots()
+    im = ax.imshow(heatmap_async_lower_phase / 1000, cmap="plasma", norm=norm1)
+    ax.invert_yaxis()
+except:
+    sns.heatmap(heatmap_async_lower_phase, annot=True, cmap="coolwarm")
 
 plt.show()

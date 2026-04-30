@@ -1,8 +1,7 @@
-#n_seeds=10
 T=10000
 #k_range=()
-Ns=(50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200)  # number of fireflies
-Cs=(10 14 18 22 26 30 34 38 42 46 50 54 58 62 66 70)  # 50 seems to be the upper limit considering T=1000
+Ns=(50 60 70 80 90)  # 110 120 130 140 150 160 170 180 190 200
+Cs=(10 14 18 22 26 30 34)  #  54 58 62 66 70
 update_noises=(0.0)
 
 
@@ -10,7 +9,7 @@ for N in "${Ns[@]}"; do
   for C in "${Cs[@]}"; do
     for update_noise in "${update_noises[@]}"; do
       python k_regular_graph_2_experiments.py \
-      --graph_seeds 1000 \
+      --graph_seeds 10 \
       --N $N \
       --C $C \
       --update_noise $update_noise \

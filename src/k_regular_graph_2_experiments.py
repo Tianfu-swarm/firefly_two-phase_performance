@@ -30,14 +30,14 @@ if __name__ == "__main__":
     # make a quick check if the results already exist and skip if they do
     flash_counts_path = (f"{args.save_dir}/k_regular_graph_local/"
                          f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts_5_it.pkl")
+                         f"N={args.N}_C={args.C}_T={args.T}_k_regular_graph_flash_counts_8_it.pkl")
     if os.path.isfile(flash_counts_path):
         print(f"{flash_counts_path} already exists. skipping...")
         exit(0)
     
     # ensure k values are valid (k must be less than N for k-regular graph)
     # args.k_range = [k for k in args.k_range if k <= args.N]
-    args.k_range = [int(args.N - (args.N * n)) for n in [0.9]]  # , 0.05, 0.1, 0.2
+    args.k_range = [7]  # , 0.05, 0.1, 0.2
     
     
     run_params = []
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, k, init_clock_state, seed = future.result()
             save_flash_counts[k][seed] = flash_counts
-            # save_phase_history[k][seed] = phase_history
+            save_phase_history[k][seed] = phase_history
             # if np.max(flash_counts) <= args.N * 0.90 and k > args.N * 0.1:
             #     save_phase_history[k][seed] = phase_history
             #     save_init_state_failed[k][seed] = init_clock_state
@@ -102,10 +102,10 @@ if __name__ == "__main__":
     with open(flash_counts_path, 'wb') as f:
         pickle.dump(save_flash_counts, f)
         
-    # with open(
-    #     f"{args.save_dir}/k_regular_graph_local/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_phase_history_1_it.pkl",
-    #     'wb') as f:
-    #     pickle.dump(save_phase_history, f)
+    with open(
+        f"{args.save_dir}/k_regular_graph_local/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_phase_history_8_it.pkl",
+        'wb') as f:
+        pickle.dump(save_phase_history, f)
     
     # with open(
     #     f"{args.save_dir}/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_init_state_failed.pkl",

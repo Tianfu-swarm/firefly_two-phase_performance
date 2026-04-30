@@ -56,9 +56,10 @@ if __name__ == "__main__":
     
     # generate for the reduced case
     tasks = [
-        (N, int(N - missing), seed)
+        # (N, int(N - missing), seed)
+        (N, int(missing), seed)
         for N in np.arange(50, 201, 10)
-        for missing in [0.9*N]  # 0.05*N, 0.1*N,0.2*N,0.3*N, 0.4*N, 0.6*N, 0.7*N, 0.8*N,
+        for missing in [5, 6, 7, 8]  # 0.05*N, 0.1*N,0.2*N,0.3*N, 0.4*N, 0.6*N, 0.7*N, 0.8*N,
         for seed in np.arange(0, 1000, 1)
     ]
     
