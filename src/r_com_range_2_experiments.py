@@ -18,6 +18,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('--N', type=int, default=100)  # number of fireflies
     arg_parser.add_argument('--C', type=int, default=10)  # clock length (number of discrete phases)
     arg_parser.add_argument('--T', type=int, default=1000)  # number of time steps to simulate
+    arg_parser.add_argument('--t_switch', type=int, default=1000)  # TODO never used
     arg_parser.add_argument('--flash_proportion', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--qr_threshold', type=float, default=0.5)  # how long to flash
     arg_parser.add_argument('--update_noise', type=float, default=0.0)  # how long to flash
@@ -55,7 +56,11 @@ if __name__ == "__main__":
             # avg_num_neighbors[r].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
                 rng = np.random.default_rng(seed)
-                phases = rng.integers(0, args.C, size=args.N)
+                # phases = rng.integers(0, args.C, size=args.N)
+                if args.N in [50, 60, 70, 80, 100, 120, 130, 140, 150, 160, 170, 200]:
+                    phases = np.floor(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
+                else:
+                    phases = np.ceil(np.linspace(0, args.C, args.N, endpoint=False)).astype(int)
                 
                 run_params.append(
                     (args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, r,
@@ -72,8 +77,7 @@ if __name__ == "__main__":
         
         futures = [
             executor.submit(simulate_fireflies_r_communication_range, N, clock_length, phases, communication_graph,
-                            args.T,
-                            flash_proportion, qr_threshold, r, seed, args.update_noise)
+                            args.T, flash_proportion, qr_threshold, r, seed, args.update_noise)
             for (N, clock_length, phases, communication_graph, args.T, flash_proportion, qr_threshold, r, seed) in
             run_params
         ]
@@ -91,11 +95,7 @@ if __name__ == "__main__":
                 f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
                 exist_ok=True)
     
-    with open(
-        f"{args.save_dir}/r_com_range_2_local/"
-        f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-        f"N={args.N}_C={args.C}_T={args.T}_r_com_range_flash_counts.pkl",
-        'wb') as f:
+    with open(flash_counts_path, 'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     # with open(
