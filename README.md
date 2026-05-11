@@ -36,13 +36,15 @@ We further show that either removing communication links or injecting noise elim
 ---
 
 ## Varying quorum sensing rule and flash duration using communication range $r$ connectivity
-<figure>
-  <img src="figures/qr_and_fd_r.png" alt="vary qr and fd using communication range r" />
-</figure>
-<b>Fig SF1</b>: 
-Analysis of quorum-sensing threshold $\theta$ and flashing duration $f$.  
+<p align="center">
+<img src="figures/qr_and_fd_k_graph.png"
+       alt="vary qr and fd using communication range r"
+       width="700"/>
+</p>
+
+**Fig. SF1:** Analysis of quorum-sensing threshold $\theta$ and flashing duration $f$.  
 We find bimodal synchronization effects near the diagonal $\theta \approx f$. 
-The axes of the subplots are max. amplitude normalized by swarm size [$F/N$] (vertical) and connectivity [$r$] (horizontal).
+The axes of the subplots are max. amplitude normalized by swarm size [$F/N$] (vertical) and connectivity [$k/N$] (horizontal).
 
 
 ## Effect of Small Connectivity ($k$) on Synchronization Behavior
@@ -68,7 +70,8 @@ This effect is particularly visible in the link removal experiments at $\sigma =
 <p align="center">
   (c) all <i>k</i>
 </p>
-<b>Fig SF2</b>:Comparison of synchronization behavior for odd, even, and all connectivity regimes k.
+
+**Fig. SF2:** Comparison of synchronization behavior for odd, even, and all connectivity regimes $k$.
 
 In these experiments, we progressively remove links such that:
 - $N = 50 \rightarrow k = 5$
