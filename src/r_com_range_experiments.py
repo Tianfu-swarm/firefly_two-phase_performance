@@ -36,23 +36,23 @@ if __name__ == "__main__":
     
     run_params = []
     save_flash_counts = {}
-    save_phase_history = {}
-    save_init_state_failed = {}
-    save_init_state_success = {}
-    avg_num_neighbors = {}
+    # save_phase_history = {}
+    # save_init_state_failed = {}
+    # save_init_state_success = {}
+    # avg_num_neighbors = {}
     for r in args.r_range:
         save_flash_counts[r] = {}
-        avg_num_neighbors[r] = []
-        save_phase_history[r] = {}
-        save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
-        save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
+        # avg_num_neighbors[r] = []
+        # save_phase_history[r] = {}
+        # save_init_state_failed[r] = np.zeros((args.n_seeds, args.N))
+        # save_init_state_success[r] = np.zeros((args.n_seeds, args.N))
         for seed_graph in range(1):
             rng = np.random.default_rng(seed_graph)
             pos = rng.random((args.N, 2))
             dists = np.sqrt(((pos[:, None, :] - pos[None, :, :]) ** 2).sum(axis=2))
             communication_graph = ((dists < r) & (dists > 0)).astype(int)
             
-            avg_num_neighbors[r].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
+            # avg_num_neighbors[r].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
                 rng = np.random.default_rng(seed)
                 phases = rng.integers(0, args.C, size=args.N)
@@ -81,21 +81,16 @@ if __name__ == "__main__":
         for future in tqdm(as_completed(futures), total=len(futures)):
             flash_counts, phase_history, groups_history, r, init_clock_state, seed = future.result()
             save_flash_counts[r][seed] = flash_counts
-            save_phase_history[r][seed] = phase_history
-            if np.max(flash_counts) <= args.N * 0.90 and r > args.N * 0.1:
-                save_init_state_failed[r][seed] = init_clock_state
-            else:
-                save_init_state_success[r][seed] = init_clock_state
+            # save_phase_history[r][seed] = phase_history
+            # if np.max(flash_counts) <= args.N * 0.90 and r > args.N * 0.1:
+            #     save_init_state_failed[r][seed] = init_clock_state
+            # else:
+            #     save_init_state_success[r][seed] = init_clock_state
     
-    os.makedirs(f"{args.save_dir}/"
-                f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/",
-                exist_ok=True)
+    flash_counts_dir_path = os.path.dirname(flash_counts_path)
+    os.makedirs(f"{flash_counts_dir_path}", exist_ok=True)
     
-    with open(
-        f"{args.save_dir}/"
-        f"flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/"
-        f"N={args.N}_C={args.C}_T={args.T}_r_com_range_flash_counts.pkl",
-        'wb') as f:
+    with open(f"{flash_counts_path}", 'wb') as f:
         pickle.dump(save_flash_counts, f)
     
     # with open(
