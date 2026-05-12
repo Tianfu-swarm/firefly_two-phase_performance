@@ -23,9 +23,13 @@ noise_level = 0.0
 
 Ns = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
 Cs = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]  #
+x_tick_labels = [50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200]
+y_tick_labels = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70]
+ticks = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 experiment_tag = "_2_local"
+show_case = "all"  # "odd", "even", "all"
 
-fig, axs = plt.subplots(2, 10, figsize=(12, 6))
+fig, axs = plt.subplots(2, 10, figsize=(14, 7))
 
 heatmaps = []
 
@@ -60,15 +64,41 @@ heatmaps.append(np.load("/Volumes/Data/other/2026_firefly_synchronization/compre
 heatmaps_1 = heatmaps[:10]
 heatmaps_2 = heatmaps[10:20]
 
-# --- filtering ----
-# for i in range(len(heatmaps_1)):
-#     heatmaps_1[i] = heatmaps_1[i][:, 1::2]
-#     heatmaps_1[i] = heatmaps_1[i][1::2, :]
-#
-# for i in range(len(heatmaps_2)):
-#     heatmaps_2[i] = heatmaps_2[i][:, 1::2]
-#     heatmaps_2[i] = heatmaps_2[i][1::2, :]
-
+if show_case == "odd":
+    # --- filtering ----
+    for i in range(len(heatmaps_1)):
+        heatmaps_1[i] = heatmaps_1[i][:, 0::2]
+        heatmaps_1[i] = heatmaps_1[i][0::2, :]
+        ticks_reduced = ticks[:8]
+        x_tick_labels_reduced = x_tick_labels[0::2]
+        y_tick_labels_reduced = y_tick_labels[0::2]
+    
+    for i in range(len(heatmaps_2)):
+        heatmaps_2[i] = heatmaps_2[i][:, 0::2]
+        heatmaps_2[i] = heatmaps_2[i][0::2, :]
+        ticks_reduced = ticks[:8]
+        x_tick_labels_reduced = x_tick_labels[0::2]
+        y_tick_labels_reduced = y_tick_labels[0::2]
+elif show_case == "even":
+    # --- filtering ----
+    for i in range(len(heatmaps_1)):
+        heatmaps_1[i] = heatmaps_1[i][:, 1::2]
+        heatmaps_1[i] = heatmaps_1[i][1::2, :]
+        ticks_reduced = ticks[:8]
+        x_tick_labels_reduced = x_tick_labels[1::2]
+        y_tick_labels_reduced = y_tick_labels[1::2]
+    
+    for i in range(len(heatmaps_2)):
+        heatmaps_2[i] = heatmaps_2[i][:, 1::2]
+        heatmaps_2[i] = heatmaps_2[i][1::2, :]
+        ticks_reduced = ticks[:8]
+        x_tick_labels_reduced = x_tick_labels[1::2]
+        y_tick_labels_reduced = y_tick_labels[1::2]
+else:
+    ticks_reduced = ticks
+    x_tick_labels_reduced = x_tick_labels
+    y_tick_labels_reduced = y_tick_labels
+    
 # --- Avoid zeros for LogNorm ---
 heatmaps_1 = [np.where(h <= 0, 1e-3, h) for h in heatmaps_1]
 heatmaps_2 = [np.where(h <= 0, 1e-3, h) for h in heatmaps_2]
@@ -99,13 +129,40 @@ for i in range(10):
     ims2.append(im)
 
 # --- Axis formatting ---
-for ax in axs.flat:
+for i, ax in enumerate(axs.flat):
     # ax.set_xticks(np.arange(len(Ns)))
     # ax.set_xticklabels(Ns)
     # ax.set_yticks(np.arange(len(Cs)))
     # ax.set_yticklabels(Cs)
-    ax.set_axis_off()
+    # ax.set_axis_off()
     ax.invert_yaxis()
+    ax.set_xticks(ticks_reduced)
+    ax.set_yticks(ticks_reduced)
+    ax.set_xticklabels(x_tick_labels_reduced)
+    ax.set_yticklabels(y_tick_labels_reduced)
+    ax.set_xticklabels(x_tick_labels_reduced, rotation=90)
+    if i < 10:
+        ax.set_title(fr"σ = {i/10:.1f}")
+    if not show_case in ["odd", "even"]:
+        ax.tick_params(axis='both', labelsize=5)
+row_titles = [
+    "Noise introduced in the update rule",
+    "Disturbance through link removal",
+]
+diffs = [0.1, 0.51]
+
+# add titles above each row
+for i, title in enumerate(row_titles):
+    txt = fig.text(
+        0.5,                 # x position (centered)
+        0.92 - diffs[i],     # y position
+        title,
+        ha='center',
+        va='center',
+        fontsize=14,
+        fontweight='bold'
+    )
+    print(txt.get_position())
 
 cbar_ax = fig.add_axes([0.25, 0.92, 0.5, 0.02])
 
@@ -128,5 +185,5 @@ cbar1.set_label("log(Asynchronous runs/total runs)")
 #
 # cbar2 = fig_cb.colorbar(ims2[0], cax=ax_cb)
 # cbar2.set_label("Asynchronus runs")  # optional label
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0, 1, 1])
 plt.show()

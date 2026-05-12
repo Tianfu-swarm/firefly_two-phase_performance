@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 matplotlib.use('QtAgg')
 pd.set_option('display.max_columns', None)
@@ -11,11 +12,28 @@ N = 100
 clock_length = 34
 T = 1000
 noise_level = 0.0
+connectivity = "k"  # "r" or "k"
 
+if connectivity == "r":
+    x_label = "r"  # Connectivity
+    y_label = "F/N"  # max amplitude
+    x_ticks = [0, 0.3, 0.6, 0.9, 1.2, 1.5]
+    x_tick_pos = [0, 3, 6, 9, 12, 15]
+    y_ticks = [0.0, 0.5, 1]
+    y_tick_pos = [0, 50, 100]
+elif connectivity == "k":
+    x_label = "k/N"  # Connectivity
+    y_label = "F/N"  # max amplitude
+    x_ticks = [0, 0.2, 0.4, 0.6, 0.8, 1]
+    x_tick_pos = [0, 4, 8, 12, 16, 20]
+    y_ticks = [0.0, 0.5, 1]
+    y_tick_pos = [0, 50, 100]
+else:
+    raise ValueError("connectivity not implemented")
 
 def get_heatmap(data_path, N):
     data = pd.read_pickle(data_path)
-    heatmap = np.zeros((N + 1, len(data.keys())))
+    heatmap = np.zeros((N + 5, len(data.keys())))  # pad some to see the full synchronization
     
     for i, k in enumerate(data.keys()):
         for run in data[k].keys():
@@ -27,11 +45,13 @@ def get_heatmap(data_path, N):
                 heatmap[i, j] = 0.0001
             else:
                 heatmap[i, j] = np.log(heatmap[i, j])
+                pass
     
     return heatmap, data
 
 
 fig, axs = plt.subplots(nrows=6, ncols=6, sharex=False, sharey=False, figsize=(8, 6))
+fig.subplots_adjust(wspace=0.05, hspace=0.25)
 
 vmin, vmax = None, None
 heatmaps = {}
@@ -39,15 +59,24 @@ heatmaps = {}
 # First pass: collect all heatmaps and find global min/max
 for i, flash_proportion in enumerate([0.1, 0.2, 0.33, 0.4, 0.5, 0.6]):
     for k, qr_threshold in enumerate([0.1, 0.2, 0.33, 0.4, 0.5, 0.6]):
-        try:
-            data_path = f'/Volumes/Data/other/2026_firefly_synchronization/old_experiments/N={N}_C={clock_length}_T={T}_flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise={noise_level}_r_com_range_flash_counts.pkl'
-            heatmap, data = get_heatmap(data_path, N)
-            heatmaps[(i, k)] = (heatmap, data)
-            local_min, local_max = heatmap.min(), heatmap.max()
-            vmin = local_min if vmin is None else min(vmin, local_min)
-            vmax = local_max if vmax is None else max(vmax, local_max)
-        except:
-            print(f"File not found: {data_path}")
+        # try:
+        if connectivity == "r":
+            data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_r_com_range/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_r_com_range_flash_counts.pkl'
+        if connectivity == "k":
+            if flash_proportion == 0.5 and qr_threshold == 0.5:
+                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N=100_C=34_T=1000_k_regular_graph_flash_counts.pkl'
+                # data_path = "/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0/N=150_C=50_T=1000_k_regular_graph_flash_counts.pkl"
+                path = Path(data_path)
+            else:
+                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_k_regular_graph_flash_counts.pkl'
+                
+        heatmap, data = get_heatmap(data_path, N)
+        heatmaps[(i, k)] = (heatmap, data)
+        local_min, local_max = heatmap.min(), heatmap.max()
+        vmin = local_min if vmin is None else min(vmin, local_min)
+        vmax = local_max if vmax is None else max(vmax, local_max)
+        # except:
+        #     print(f"File not found: {data_path}")
 
 # Second pass: plot with shared scale
 im = None
@@ -64,12 +93,24 @@ for i in range(6):
         if (i, k) in heatmaps:
             heatmap, data = heatmaps[(i, k)]
             im = ax.imshow(heatmap, aspect='auto', origin='lower', cmap='plasma', vmin=vmin, vmax=vmax)
+            
+            # show y-axis only on left column
+            if k == 0:
+                ax.set_yticks(y_tick_pos)
+                ax.set_yticklabels(y_ticks)
+                ax.set_ylabel(y_label)
+            
+            # show x-axis only on bottom row
+            if i == 5:
+                ax.set_xticks(x_tick_pos)
+                ax.set_xticklabels(x_ticks)
+                ax.set_xlabel(x_label)
 
 # Single colorbar on the right
-if im is not None:
-    fig_cb, ax_cb = plt.subplots(figsize=(0.5, 6))
-    fig.colorbar(im, cax=ax_cb, orientation='vertical')
-    fig_cb.tight_layout()
+# if im is not None:
+#     fig_cb, ax_cb = plt.subplots(figsize=(0.5, 6))
+#     fig.colorbar(im, cax=ax_cb, orientation='vertical')
+#     fig_cb.tight_layout()
 plt.show()
 
 
