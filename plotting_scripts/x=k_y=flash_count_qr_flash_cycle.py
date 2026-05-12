@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 matplotlib.use('QtAgg')
 pd.set_option('display.max_columns', None)
@@ -44,6 +45,7 @@ def get_heatmap(data_path, N):
                 heatmap[i, j] = 0.0001
             else:
                 heatmap[i, j] = np.log(heatmap[i, j])
+                pass
     
     return heatmap, data
 
@@ -57,18 +59,24 @@ heatmaps = {}
 # First pass: collect all heatmaps and find global min/max
 for i, flash_proportion in enumerate([0.1, 0.2, 0.33, 0.4, 0.5, 0.6]):
     for k, qr_threshold in enumerate([0.1, 0.2, 0.33, 0.4, 0.5, 0.6]):
-        try:
-            if connectivity == "r":
-                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_r_com_range/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_r_com_range_flash_counts.pkl'
-            if connectivity == "k":
+        # try:
+        if connectivity == "r":
+            data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_r_com_range/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_r_com_range_flash_counts.pkl'
+        if connectivity == "k":
+            if flash_proportion == 0.5 and qr_threshold == 0.5:
+                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N=100_C=34_T=1000_k_regular_graph_flash_counts.pkl'
+                # data_path = "/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0/N=150_C=50_T=1000_k_regular_graph_flash_counts.pkl"
+                path = Path(data_path)
+            else:
                 data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_k_regular_graph_flash_counts.pkl'
-            heatmap, data = get_heatmap(data_path, N)
-            heatmaps[(i, k)] = (heatmap, data)
-            local_min, local_max = heatmap.min(), heatmap.max()
-            vmin = local_min if vmin is None else min(vmin, local_min)
-            vmax = local_max if vmax is None else max(vmax, local_max)
-        except:
-            print(f"File not found: {data_path}")
+                
+        heatmap, data = get_heatmap(data_path, N)
+        heatmaps[(i, k)] = (heatmap, data)
+        local_min, local_max = heatmap.min(), heatmap.max()
+        vmin = local_min if vmin is None else min(vmin, local_min)
+        vmax = local_max if vmax is None else max(vmax, local_max)
+        # except:
+        #     print(f"File not found: {data_path}")
 
 # Second pass: plot with shared scale
 im = None
@@ -99,10 +107,10 @@ for i in range(6):
                 ax.set_xlabel(x_label)
 
 # Single colorbar on the right
-if im is not None:
-    fig_cb, ax_cb = plt.subplots(figsize=(0.5, 6))
-    fig.colorbar(im, cax=ax_cb, orientation='vertical')
-    fig_cb.tight_layout()
+# if im is not None:
+#     fig_cb, ax_cb = plt.subplots(figsize=(0.5, 6))
+#     fig.colorbar(im, cax=ax_cb, orientation='vertical')
+#     fig_cb.tight_layout()
 plt.show()
 
 

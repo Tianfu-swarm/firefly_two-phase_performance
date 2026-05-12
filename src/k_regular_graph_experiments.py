@@ -55,39 +55,16 @@ if __name__ == "__main__":
         for seed_graph in range(args.graph_seeds):
             data = np.load(f"{graph_dir}/pre_computed_graphs/N={args.N}_k={k}_seed={seed_graph}.npz")
             communication_graph = data["communication_graph"]
-            # if k == args.N:
-            #     communication_graph = np.ones((args.N, args.N))
-            #     np.fill_diagonal(communication_graph, 0)
-            # else:
-            #     random.seed(seed_graph)
-            #     np.random.seed(seed_graph)
-            #     ig.set_random_number_generator(random)
-            #     try:
-            #         if k > (args.N / 2):  # we can use the complement to be quicker
-            #             G = ig.Graph.K_Regular(args.N, args.N - 1 - k)
-            #             communication_graph = np.ones((args.N, args.N))
-            #             np.fill_diagonal(communication_graph, 0)
-            #             communication_graph -= np.array(G.get_adjacency().data)
-            #         else:
-            #             G = ig.Graph.K_Regular(args.N, k)
-            #             communication_graph = np.array(G.get_adjacency().data)
-            #     except:
-            #         print(f"Cannot generate k-regular graph with k={k} and N={args.N} (should be k > N). Skipping this k.")
-            #         continue
-            
             # avg_num_neighbors[k].append(float(np.mean(np.sum(communication_graph, axis=1) / (args.N - 1))))
             for seed in range(args.n_seeds):
-                rng = np.random.default_rng(seed)
-                phases = rng.integers(0, args.C, size=args.N)
                 final_seed = int(args.n_seeds * seed_graph + seed)
+                rng = np.random.default_rng(final_seed)
+                phases = rng.integers(0, args.C, size=args.N)
+                
                 run_params.append(
                     (args.N, args.C, phases, communication_graph, args.T, args.flash_proportion, args.qr_threshold, k,
                      final_seed))
     
-    # avg_num_neighbors_df = pd.DataFrame(avg_num_neighbors)
-    # avg_num_neighbors_df.to_csv(
-    #     f"{args.save_dir}/flash_proportion={args.flash_proportion}_qr_threshold={args.qr_threshold}_update_noise={args.update_noise}/N={args.N}_C={args.C}_T={args.T}_k_regular_graph_avg_neighbors.csv",
-    #     index=False)
     print(f"done setting up the parameters ...")
     print(
         f"Running: N={args.N} | C={args.C} | T={args.T} | flash_proportion={args.flash_proportion} | qr_threshold={args.qr_threshold} | update_noise={args.update_noise} | k_range={args.k_range}")

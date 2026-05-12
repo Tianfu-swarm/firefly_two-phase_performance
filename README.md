@@ -45,6 +45,7 @@ We further show that either removing communication links or injecting noise elim
 **Fig. SF1:** Analysis of quorum-sensing threshold $\theta$ and flashing duration $f$.  
 We find bimodal synchronization effects near the diagonal $\theta \approx f$. 
 The axes of the subplots are max. amplitude normalized by swarm size [$F/N$] (vertical) and connectivity [$k/N$] (horizontal).
+(For better resolution please see the .pdf.)
 
 
 ## Effect of Small Connectivity ($k$) on Synchronization Behavior
@@ -109,5 +110,5 @@ Although this effect diminishes for larger $k$, the asymmetry remains measurable
 k = 198: P(Neighbors flashing > k/2) = 0.47168 | threshold = 100
 ```
 
-One possible interpretation is that when $P \approx 50\%$, the initialization behaves similarly to a coin-flip regime, which may lead to symmetric configurations that are harder for the system to escape, especially when only very few connections are established. In contrast, when $P < 50\%$, this symmetry is weakly broken, potentially facilitating synchronization. However, this remains a speculative explanation based on empirical observations rather than a derived mechanism.
+One possible interpretation is that when $P \approx 0.5$, the initialization behaves similarly to a coin-flip regime, which may lead to symmetric configurations that are harder for the system to escape, especially when only very few connections are established. In contrast, when $P < 0.5$, this symmetry is weakly broken, potentially facilitating synchronization. However, this remains a speculative explanation based on empirical observations rather than a derived mechanism.
 
