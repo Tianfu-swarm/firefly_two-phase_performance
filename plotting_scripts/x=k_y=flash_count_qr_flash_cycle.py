@@ -9,7 +9,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 N = 100
-clock_length = 34
+clock_length = 10
 T = 1000
 noise_level = 0.0
 connectivity = "k"  # "r" or "k"
@@ -63,12 +63,7 @@ for i, flash_proportion in enumerate([0.1, 0.2, 0.33, 0.4, 0.5, 0.6]):
         if connectivity == "r":
             data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_r_com_range/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_r_com_range_flash_counts.pkl'
         if connectivity == "k":
-            if flash_proportion == 0.5 and qr_threshold == 0.5:
-                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N=100_C=34_T=1000_k_regular_graph_flash_counts.pkl'
-                # data_path = "/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion=0.5_qr_threshold=0.5_update_noise=0.0/N=150_C=50_T=1000_k_regular_graph_flash_counts.pkl"
-                path = Path(data_path)
-            else:
-                data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_k_regular_graph_flash_counts.pkl'
+            data_path = f'/Volumes/Data/other/2026_firefly_synchronization/qr_f_experiments_k_graph/flash_proportion={flash_proportion}_qr_threshold={qr_threshold}_update_noise=0.0/N={N}_C={clock_length}_T={T}_k_regular_graph_flash_counts.pkl'
                 
         heatmap, data = get_heatmap(data_path, N)
         heatmaps[(i, k)] = (heatmap, data)
