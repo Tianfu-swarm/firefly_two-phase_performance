@@ -37,7 +37,7 @@ We further show that either removing communication links or injecting noise elim
 
 ## Varying quorum sensing rule and flash duration using communication range $r$ connectivity
 <p align="center">
-<img src="figures/qr_and_fd_k_graph.png"
+<img src="figures/qr_and_fd_k_graph_10.png"
        alt="vary qr and fd using communication range r"
        width="700"/>
 </p>

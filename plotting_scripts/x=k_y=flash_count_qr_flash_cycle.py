@@ -49,8 +49,13 @@ def get_heatmap(data_path, N):
     
     return heatmap, data
 
-
-fig, axs = plt.subplots(nrows=6, ncols=6, sharex=False, sharey=False, figsize=(8, 6))
+# Convert pt -> inches for matplotlib
+pt_to_inch = 1 / 72.27
+width_pt = 285
+height_pt = 149
+fig_width = width_pt * pt_to_inch*3
+fig_height = height_pt * pt_to_inch*3
+fig, axs = plt.subplots(nrows=6, ncols=6, sharex=False, sharey=False, figsize=(fig_width, fig_height))
 fig.subplots_adjust(wspace=0.05, hspace=0.25)
 
 vmin, vmax = None, None
