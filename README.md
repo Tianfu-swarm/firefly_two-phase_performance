@@ -23,7 +23,7 @@ We further show that either removing communication links or injecting noise elim
        width="700"/>
 </p>
 
-The blue shaded section indicates the clock update rule in the absence of noise, 
+**Alg. SA1:** The blue shaded section indicates the clock update rule in the absence of noise, 
 whereas the red shaded section corresponds to the noisy clock update rule. 
 Depending on the experimental setup, only the relevant update mechanism is applied.
 ---
