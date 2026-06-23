@@ -16,6 +16,17 @@ High synchronization is achieved only near a critical balance between the quorum
 We further show that either removing communication links or injecting noise eliminates the low-performance regime. Together with recent findings on spatial congestion in multi-robot systems, our results suggest a domain-general property of distributed systems: bimodal performance emerges when increasing agent density induces structural obstructions to coordination, whether physical (spatial crowding) or dynamical (symmetry-induced phase locking).
 
 ---
+## Pseudocode of our firefly model 
+<p align="center">
+<img src="figures/pseudocode_fireflies.png"
+       alt="pseudocode of our firefly model"
+       width="700"/>
+</p>
+
+The blue shaded section indicates the clock update rule in the absence of noise, 
+whereas the red shaded section corresponds to the noisy clock update rule. 
+Depending on the experimental setup, only the relevant update mechanism is applied.
+---
 ## Code Overview
 
 - `src/simulation.py`
