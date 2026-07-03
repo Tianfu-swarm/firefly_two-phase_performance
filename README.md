@@ -4,7 +4,7 @@ This repository accompanies the publication:
 
 **“Bimodal Performance in Time Synchronization in Distributed Agents”**  
 
-submitted to *The 18th International Conference on the Simulation of Adaptive Behavior (SAB 2026)*.
+accepted at *The 18th International Conference on the Simulation of Adaptive Behavior (SAB 2026)*.
 
 ---
 ## Abstract
@@ -26,6 +26,8 @@ We further show that either removing communication links or injecting noise elim
 **Alg. SA1:** The blue shaded section indicates the clock update rule in the absence of noise, 
 whereas the red shaded section corresponds to the noisy clock update rule. 
 Depending on the experimental setup, only the relevant update mechanism is applied.
+
+
 ---
 ## Code Overview
 
@@ -123,3 +125,16 @@ k = 198: P(Neighbors flashing > k/2) = 0.47168 | threshold = 100
 
 One possible interpretation is that when $P \approx 0.5$, the initialization behaves similarly to a coin-flip regime, which may lead to symmetric configurations that are harder for the system to escape, especially when only very few connections are established. In contrast, when $P < 0.5$, this symmetry is weakly broken, potentially facilitating synchronization. However, this remains a speculative explanation based on empirical observations rather than a derived mechanism.
 
+
+### Citation
+```
+@misc{aust2026bimodal,
+      title={Bimodal Synchronization Performance: Why Noise and Sparse Connectivity Can Improve Collective Timing}, 
+      author={Aust, Till and Zhang, Tianfu and Reina, Andreagiovanni and Hamann, Heiko},
+      year={2026},
+      eprint={2605.17206},
+      archivePrefix={arXiv},
+      primaryClass={cs.MA},
+      url={https://arxiv.org/abs/2605.17206}, 
+}
+```
