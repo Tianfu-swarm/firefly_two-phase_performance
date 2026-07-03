@@ -2,7 +2,7 @@
 
 This repository accompanies the publication:
 
-**“Bimodal Performance in Time Synchronization in Distributed Agents”**  
+**“Bimodal Synchronization Performance: Why Noise and Sparse Connectivity Can Improve Collective Timing”**  
 
 accepted at *The 18th International Conference on the Simulation of Adaptive Behavior (SAB 2026)*.
 
